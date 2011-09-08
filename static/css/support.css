@@ -4,4 +4,27 @@
 
 #content ul.caselist li { 
                           list-style-type: none;
+                          font-size: 90%;
+                          background-color: #fafafa;
+                          border-bottom: 1px solid #aaa;
+                          padding: 5pt;
+                          margin: 5pt 0;
                           }
+
+#content ul.caselist li div.summary{ 
+                                     padding-left: 15%;
+                          }
+
+#content table.case-header { 
+                             width: 100%;
+                             background-color: #ccc;
+                             font-size: 75%;
+ }
+
+#content table.case-header td.subject {
+                                        width: 15%;
+ }
+
+#content ul.caselist li div.creator { 
+                       font-size: 75%;
+ }

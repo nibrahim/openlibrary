@@ -1,4 +1,25 @@
 $def with (case)
 
-$case.caseno
+$def truncate(text, length = 200):
+   $if len(text) > 200:
+     $text[:200]...
+   $else:
+     $text
 
+
+<table class="case-header">
+  <tr>
+    <td class = "caseno">#$case.caseno:</td>
+    <td class = "subject">$case.subject</td>
+    <td class = "assignee">Assigned to $case.assignee</td>
+    <td class = "replies">$len(case.history) replies</td>
+    <td class = "last-updated">Last updated $datestr(case.last_modified) by $case.history[-1].by</td>
+    
+  </tr>
+</table>
+<div class="summary">
+$truncate(case.description)
+</div>
+<div class="creator">
+By $case.creator ($datestr(case.created))
+</div>

@@ -119,6 +119,10 @@ class Case(Document):
     def store(self, db):
         super(Case, self).store(db)
         self.db = db
+
+    @property
+    def creator(self):
+        return self.creator_name or self.creator_username or self.creator_email
         
     @property
     def last_modified(self):
