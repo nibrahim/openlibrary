@@ -6,23 +6,9 @@ $def with (summary, total, cases, desc, error = False)
 </div>
 <div id="contentBody">
 <style type="text/css">
-table.support { 
-              font-family: Lucida, "Lucida Sans";
-              font-size: 0.75em;
-              width: 100%;
-              }
-
-table.support th { 
-                 font-weight: bold;
- }
-table.support th, table.support td {
-                                 border-bottom: 1px solid #ddd; 
-                                 vertical-align:top;
-                                 padding: 5pt;
-                                 }
-table.support pre.hidden { 
-                         display: none;
- }
+#content ul#caselist { 
+                       list-style-type: none;
+                       }
 
 </style>
 
@@ -36,6 +22,23 @@ $def link(url, title, extra):
         <strong>$title ($extra)</strong>
     $else:
         <a href="$url">$title $extra</a>
+
+$if error:
+  <p>Couldn't connect to support database.</p>
+$else:
+  <p>
+    Filter: $:link("/admin/support/new", "new", summary["new"])  |
+    $:link("/admin/support/replied", "replied", summary["replied"]) |
+    $:link("/admin/support/closed", "closed", summary["closed"]) |
+    $:link("/admin/support/all", "all", total) 
+  </p>
+
+  <ul class="caselist">
+    $for case in cases:
+    <li>$:render_template("admin/case-summary", case)</li>
+  </ul>
+
+
 
 $if error:
   <p>Couldn't connect to support database.</p>
