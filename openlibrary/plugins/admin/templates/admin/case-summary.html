@@ -9,11 +9,11 @@ $def truncate(text, length = 200):
 
 <table class="case-header">
   <tr>
-    <td class = "caseno">#$case.caseno:</td>
-    <td class = "subject">$case.subject</td>
+    <td class = "caseno"><a href="/admin/support/$case.caseno">#$case.caseno</a>:</td>
+    <td class = "subject"><a href="/admin/support/$case.caseno">$case.subject</a></td>
     <td class = "assignee">Assigned to $case.assignee</td>
     <td class = "replies">$len(case.history) replies</td>
-    <td class = "last-updated">Last updated $datestr(case.last_modified) by $case.history[-1].by</td>
+    <td class = "last-updated">Last updated $datestr(case.last_modified_date) by $case.last_modified_by</td>
     
   </tr>
 </table>
@@ -21,5 +21,5 @@ $def truncate(text, length = 200):
 $truncate(case.description)
 </div>
 <div class="creator">
-By $case.creator ($datestr(case.created))
+By <a href="/admin/people/$case.creator_username">$case.creator</a> ($datestr(case.created))
 </div>

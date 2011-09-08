@@ -55,7 +55,7 @@ class Support(object):
         c = Case.load(self.db, caseid)
         return c
         
-    def get_all_cases(self, typ = "all", summarise = False, sortby = "lastmodified", desc = "false"):
+    def get_all_cases(self, typ = "all", summarise = False, sortby = "lastmodified", desc = "true"):
         "Return all the cases in the system"
         if summarise:
             d = defaultdict(lambda: 0)
@@ -125,7 +125,11 @@ class Case(Document):
         return self.creator_name or self.creator_username or self.creator_email
         
     @property
-    def last_modified(self):
+    def last_modified_by(self):
+        return self.history[-1].by
+
+    @property
+    def last_modified_date(self):
         return self.history[-1].at
 
     @property

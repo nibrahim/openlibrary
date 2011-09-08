@@ -201,7 +201,7 @@ $if cases:
             <td><a href="/admin/support/$(case.caseno)">$case.subject</a></td>
             <td><a href="/admin/people/$(case.creator_username)">$case.creator_name</a></td>
             <td>$case.assignee</td>
-            <td>$datestr(case.last_modified)</td>
+            <td>$datestr(case.last_modified_date)</td>
             <td>$len(case.history)</td>
             <td>$case.status</td>
         </tr>

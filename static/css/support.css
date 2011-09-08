@@ -12,7 +12,13 @@
                           }
 
 #content ul.caselist li div.summary{ 
-                                     padding-left: 15%;
+                                     font-size: 80%;
+                                     border: 1px solid #eee;
+                                     margin: 5pt;
+                                     padding: 2pt 5pt;
+                                     background-color: #fcfcfc;
+                                     -moz-border-radius: 1em;
+                                     
                           }
 
 #content table.case-header { 

@@ -13,7 +13,7 @@ class cases(object):
     def GET(self, typ = "new"):
         if not support_db:
             return render_template("admin/cases", None, None, True, False)
-        i = web.input(sort="status", desc = "false")
+        i = web.input(sort="lastmodified", desc = "false")
         sortby = i['sort']
         desc = i['desc']
         cases = support_db.get_all_cases(typ, summarise = False, sortby = sortby, desc = desc)
