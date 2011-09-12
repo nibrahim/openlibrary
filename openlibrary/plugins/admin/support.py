@@ -25,6 +25,7 @@ class cases(object):
 
 class case(object):
     def GET(self, caseid):
+        user = web.ctx.site.get_user()
         if not support_db:
             return render_template("admin/cases", None, None, True, False)
         case = support_db.get_case(caseid)
@@ -38,6 +39,7 @@ class case(object):
         except Exception:
             last_email = ""
         admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
+        case.update_message_count(user.get_email())
         return render_template("admin/case", case, last_email, admins, date_pretty_printer)
 
     def POST(self, caseid):

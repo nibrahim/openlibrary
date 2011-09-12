@@ -12,6 +12,11 @@ $def with (summary, total, cases, desc, current_user, error = False)
 
 </style>
 
+$def get_unread_status(case, user):
+   $if len(case.history) > case.message_count.get(user.get_email(), 0):
+      modified
+   
+
 $def get_modification_class(entry, user):
   $if entry.by == user.get_email():
       self
@@ -46,6 +51,6 @@ $else:
 
   <ul class="caselist">
     $for case in cases:
-    <li class="$get_modification_class(case.history[-1], current_user) $get_age_class(case)">$:render_template("admin/case-summary", case, current_user)</li>
+    <li class="$get_unread_status(case, current_user) $get_modification_class(case.history[-1], current_user) $get_age_class(case)">$:render_template("admin/case-summary", case, current_user)</li>
   </ul>
 </div>

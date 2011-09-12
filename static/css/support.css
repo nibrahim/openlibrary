@@ -51,8 +51,10 @@
                          border: 1px solid #fbb;
  }
 
-#content li.old { 
+#content li.old table.case-header { 
                                     font-weight: bold;
+                                    }
+
+#content li.modified { 
+                       border-width: 3px !important;
  }
-
-

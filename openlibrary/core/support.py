@@ -44,7 +44,8 @@ class Support(object):
                      created = created,
                      status = "new",
                      url = url,
-                     support_db = self.db)
+                     support_db = self.db,
+                     message_count = {})
         c.store(self.db)
         return c
 
@@ -80,6 +81,7 @@ class Case(Document):
     creator_username  = TextField()
     url               = TextField()
     created           = DateTimeField()
+    message_count     = DictField()
     history           = ListField(DictField(Mapping.build(at    = DateTimeField(),
                                                           by    = TextField(),
                                                           text  = TextField())))
@@ -106,6 +108,16 @@ class Case(Document):
                      text = text)
         self.history.append(entry)
         self.store(self.db)
+
+    def update_message_count(self, user):
+        """
+        Update the message count for the given user.
+        """
+        count = len(self.history)
+        if self.message_count.get(user, 0) != count:
+            self.message_count[user] = count
+            self.store(self.db)
+        
         
     # Override base class members to hold the database connection
     @classmethod
