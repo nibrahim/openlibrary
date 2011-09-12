@@ -123,6 +123,12 @@ class Case(Document):
     @property
     def creator(self):
         return self.creator_name or self.creator_username or self.creator_email
+
+    @property
+    def age(self):
+        "Age of the case"
+        age = datetime.datetime.now() - self.history[-1].at
+        return age.days
         
     @property
     def last_modified_by(self):

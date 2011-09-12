@@ -6,7 +6,7 @@
                           list-style-type: none;
                           font-size: 90%;
                           background-color: #fafafa;
-                          border-bottom: 1px solid #aaa;
+                          border: 1px solid #ccc;
                           padding: 5pt;
                           margin: 5pt 0;
                           }
@@ -23,8 +23,13 @@
 
 #content table.case-header { 
                              width: 100%;
-                             background-color: #ccc;
+                             background-color: #fff;
+                             border: 1px solid #f4f4f4;
                              font-size: 75%;
+ }
+
+#content table.case-header td { 
+                                padding: 0 2pt;
  }
 
 #content table.case-header td.subject {
@@ -34,3 +39,20 @@
 #content ul.caselist li div.creator { 
                        font-size: 75%;
  }
+
+#content li.self { 
+                      background-color: #cfc !important;
+                      border: 1px solid #bfb;
+                                     
+ }
+
+#content li.creator { 
+                         background-color: #fee !important;
+                         border: 1px solid #fbb;
+ }
+
+#content li.old { 
+                                    font-weight: bold;
+ }
+
+

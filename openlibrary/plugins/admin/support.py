@@ -12,15 +12,16 @@ support_db = None
 class cases(object):
     def GET(self, typ = "new"):
         if not support_db:
-            return render_template("admin/cases", None, None, True, False)
-        i = web.input(sort="lastmodified", desc = "false")
+            return render_template("admin/cases", None, None, True, None, False)
+        i = web.input(sort="status", desc = "true")
         sortby = i['sort']
         desc = i['desc']
         cases = support_db.get_all_cases(typ, summarise = False, sortby = sortby, desc = desc)
         summary = support_db.get_all_cases(typ, summarise = True)
         total = sum(int(x) for x in summary.values())
         desc = desc == "false" and "true" or "false"
-        return render_template("admin/cases", summary, total, cases, desc)
+        current_user = web.ctx.site.get_user()
+        return render_template("admin/cases", summary, total, cases, desc, current_user)
 
 class case(object):
     def GET(self, caseid):
@@ -100,11 +101,13 @@ class case(object):
         case.change_status("closed", by)
         add_flash_message("info", "Case closed")
 
+
 def setup():
     global support_db
     try:
         support_db = support.Support()
     except support.DatabaseConnectionError:
         support_db = None
+
 
 

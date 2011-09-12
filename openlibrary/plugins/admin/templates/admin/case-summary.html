@@ -1,4 +1,4 @@
-$def with (case)
+$def with (case, current_user)
 
 $def truncate(text, length = 200):
    $if len(text) > 200:
@@ -14,7 +14,6 @@ $def truncate(text, length = 200):
     <td class = "assignee">Assigned to $case.assignee</td>
     <td class = "replies">$len(case.history) replies</td>
     <td class = "last-updated">Last updated $datestr(case.last_modified_date) by $case.last_modified_by</td>
-    
   </tr>
 </table>
 <div class="summary">

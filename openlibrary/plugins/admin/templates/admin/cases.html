@@ -1,4 +1,4 @@
-$def with (summary, total, cases, desc, error = False)
+$def with (summary, total, cases, desc, current_user, error = False)
 
 <div id="contentHead">
     $:render_template("admin/menu")
@@ -11,6 +11,17 @@ $def with (summary, total, cases, desc, error = False)
                        }
 
 </style>
+
+$def get_modification_class(entry, user):
+  $if entry.by == user.get_email():
+      self
+  $if entry.by == case.creator_email:
+      creator
+  other
+
+$def get_age_class(case):  
+  $if case.age > 5:
+      old
 
 $ path = request.path
 $if path.endswith("support"): 
@@ -35,6 +46,6 @@ $else:
 
   <ul class="caselist">
     $for case in cases:
-    <li>$:render_template("admin/case-summary", case)</li>
+    <li class="$get_modification_class(case.history[-1], current_user) $get_age_class(case)">$:render_template("admin/case-summary", case, current_user)</li>
   </ul>
 </div>
