@@ -56,13 +56,22 @@ class Support(object):
         c = Case.load(self.db, caseid)
         return c
         
-    def get_all_cases(self, typ = "all", summarise = False, sortby = "lastmodified", desc = "true"):
+    def get_all_cases(self, typ = "all", summarise = False, sortby = "lastmodified", desc = "true", user = False):
         "Return all the cases in the system"
         if summarise:
             d = defaultdict(lambda: 0)
-            v = ViewDefinition("cases", "sort-status", "", group_level = 1, stale = "ok")
+            if user:
+                print "Filtered"
+                v = ViewDefinition("cases", "assignee", "", group_level = 2, stale = "ok", 
+                                   startkey = [user, "closed"], endkey = [user, {}])
+            else:
+                print "Open"
+                v = ViewDefinition("cases", "assignee", "", group_level = 2, stale = "ok", 
+                                   startkey = [None, "closed"], endkey = [None,{}])
             for i in v(self.db):
-                d[i.key[0]] = i.value
+                print "%s    %s    %s"%(i, i.key[1], i.value)
+                d[i.key[1]] += i.value
+            print d
             return d
         else:
             return Case.all(self.db, typ, sortby, desc)

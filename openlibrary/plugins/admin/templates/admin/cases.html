@@ -39,6 +39,12 @@ $def link(url, title, extra):
     $else:
         <a href="$url">$title $extra</a>
 
+$def onlyself_flag():
+   $if query_param("all") == "true":
+     checked="true"
+   
+   
+
 $if error:
   <p>Couldn't connect to support database.</p>
 $else:
@@ -47,6 +53,11 @@ $else:
     $:link("/admin/support/replied", "replied", summary["replied"]) |
     $:link("/admin/support/closed", "closed", summary["closed"]) |
     $:link("/admin/support/all", "all", total) 
+    <br/>
+    <form method="post" id="userfilter">
+	<label for="mine">Show all cases (not just mine)</label>
+	<input type="checkbox" $onlyself_flag() name="all" value="true" id="mine" onChange="\$('#userfilter').submit();"/>
+    </form>
   </p>
 
   <ul class="caselist">
