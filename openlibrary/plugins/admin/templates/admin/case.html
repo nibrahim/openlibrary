@@ -10,6 +10,75 @@ $var title: $case.subject ($case.creator_username)
     });
 </script>
 
+<style type="text/css">
+
+span.status  { 
+               display: inline;
+               width: 10%;
+               float: right;
+               font-size: 12pt;
+               color: white;
+               text-align: center;
+               padding: 0.2em;
+               }
+
+span.status-replied, span.status-new {
+                                        background-color: green;
+                                       }
+
+span.status-closed {
+                     background-color: #BD2C00;
+}
+
+#assignee { 
+            display: inline;
+ }
+
+div.description{ 
+                 padding-left: 20px; 
+                 background-color: #f5f5f5;
+ }
+
+#close2 {
+          float: right; 
+          margin: 0;
+          }
+
+table.info th { 
+                font-weight: bold;
+                padding: 1pt 5pt;
+                
+ }
+
+ul.casehistory h6 span.date { 
+                              float: right;
+ }
+
+#content ul.casehistory { 
+                          margin: 0;
+ }
+#content ul.casehistory li { 
+                             list-style-type: none;
+                             background-color: #fafafa;
+                             border: 2px solid #eee;
+                             margin:5pt ;
+                             padding: 0;
+ }
+
+
+#content ul.casehistory li h6 { 
+                                border-bottom: 1px solid #aaa;
+                                margin: 0;
+                                background-color: #ccc;
+                                padding: 0 3pt;
+ }
+
+#content ul.casehistory li p { 
+                               margin: 5pt;
+
+ }
+
+</style>
 
 <div id="contentHead">
     $:render_template("admin/menu", "/admin")
@@ -17,55 +86,56 @@ $var title: $case.subject ($case.creator_username)
 
 <div id="contentBody">
 
-<form id="form1" name="form1" method="post" action="">
-<table class="changeHistory" border="0" cellspacing="0" style="width: 100%; margin-top: -20px; border-top: 1px solid #eee;">
-  <tr>
-    <th colspan="2">
-            <span class="black highlight"><b>$(case.caseid)</b></span>&nbsp;&nbsp;&bull;&nbsp;&nbsp; 
-            <b>Status: $case.status</b>&nbsp;&nbsp;&bull;&nbsp;&nbsp; 
-            Case created: $(datestr(case.created)), $(pretty_print_date(case.created))
-        <div style="float: right; margin: 0;"><input type="submit" name="button" id="close2" value="CLOSE CASE" /></div>
-    </th>
-  </tr>
-  <tr>
-    <td colspan="2" style="padding-left: 20px; background-color: #f5f5f5;">
-        <span class="largest">$:format(case.description)</span>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" style="padding-left: 20px;">
+<h1><a href="/admin/support">Cases</a> / $case.caseno: $case.subject 
+<span class="status status-$case.status">
+  $case.status
+</span>
+</h1>                            
+$if case.status != "closed":
+   <form method="POST">
+     <input type="submit" name="button" id="close2" value="CLOSE CASE" />
+   </form>
+By
+$if (case.creator_name):
+    <a href="/admin/people/$(case.creator_email)">$(case.creator_name)</a> 
+$else:
+    <a href="/admin/people/$(case.creator_email)">$(case.creator_email)</a>
 
-    $if (case.creator_name):
-        <span class="black"><b>$(case.creator_name)</b></span>&nbsp;&nbsp;&bull;&nbsp;&nbsp;
-        $(case.creator_email)&nbsp;&nbsp;&bull;&nbsp;&nbsp;
-        <a href="/admin/people/$(case.creator_username)">$(case.creator_username)</a>
-    $else:
-        <span class="black"><b>$(case.creator_email)</b></span>&nbsp;&nbsp;&bull;&nbsp;&nbsp;
-        <span class="smaller">Not logged in</span> (<a href="/admin/people/$(case.creator_email)">$(case.creator_email)</a>)
+| Assigned to 
+<form method="POST" id="assignee">
+    <select name="assignee" id="assignee" onChange="\$('#assignee').submit();">
+      $for email,username,selected in admins:
+        $if selected:
+	  <option selected="selected" value="$:email">$username</option>
+        $else:
+	  <option value="$:email">$username</option>
+    </select>
+    <input type="hidden" name="button" value="REASSIGN"/>
+</form>
 
-        
-    <br/><br/><span class="smaller">$(case.creator_useragent)</span></td>
-  </tr>
-  <tr>
-    <td colspan="2" style="padding-left: 20px;">
-         <strong>$(case.subject)</strong>&nbsp;&nbsp;&bull;&nbsp;&nbsp;From <a href="$(case.url)">$(case.url)</a>&nbsp;&nbsp;&bull;&nbsp;&nbsp;<a href="/admin/support/$(case.caseno)">http://openlibrary.org/admin/support/$(case.caseno)</a>
-    </td>
-  </tr>
+<div class="description" >
+  <span class="largest">$:format(case.description)</span>
+</div>
+
+<table class="info">
+<tr>
+  <th>Browser</th><td><span class="smaller">$(case.creator_useragent)</span><br/></td>
+</tr>
+<tr>
+  <th>Assigned to</th><td>$case.assignee</td>
+</tr>
 </table>
 
-<h2>Case History</h2>
-
-<table class="changeHistory" border="0" cellspacing="0" style="width: 100%; border-top: 1px solid #eee;">
+<ul class="casehistory">
   $for entry in case.history:
-    <tr>
-        <td style="width: 25%">
-            <span class="black"><b>$(datestr(entry.at))</b></span> <span class="smaller">$(pretty_print_date(entry.at))</span>
-            <br />
-            $(entry.by)
-        </td>
-        <td>$:format(entry.text)</td>
-    </tr>
-</table>
+    <li class="casenote">
+	<h6>$(entry.by)	<span class="date">$(datestr(entry.at))</span></h6>
+	$if entry.text:
+	 <p>
+	    $:format(entry.text)
+	 </p>
+    </li>
+</ul>
 
 <table style="width: 100%">
 <tr>
@@ -79,22 +149,10 @@ $var title: $case.subject ($case.creator_username)
     <p><input type="submit" name="button" id="button3" value="SEND REPLY" /></p>	
 </td>
 <td style="width: 50%; vertical-align: top;">
-    <h2>Add Case Note/Re-assign</h2>
-    <p>Assigned to: 
-    <select name="assignee" id="assignee">
-	$for email,username,selected in admins:
-	  $if selected:
-	     <option selected="selected" value="$:email">$username</option>
-          $else:
-	     <option value="$:email">$username</option>
-    </select>
+    <h2>Add Case Note</h2>
     <p>Add Case Note:</p>
     <p><textarea class="markdown" name="casenote2" id="textarea2" rows="10" style="width: 420px"></textarea></p>
     <p><input type="submit" name="button" id="button" value="UPDATE" /></p>
 </td>
 </tr>
 </table>
-
-      <p align="center"><input type="submit" name="button" id="close2" value="CLOSE CASE" /></p>
-</div>
-</form>

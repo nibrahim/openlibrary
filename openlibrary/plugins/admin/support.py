@@ -56,13 +56,24 @@ class case(object):
         action = form.get("button","")
         {"SEND REPLY" : self.POST_sendreply,
          "UPDATE"     : self.POST_update,
-         "CLOSE CASE" : self.POST_closecase}[action](form,case)
+         "CLOSE CASE" : self.POST_closecase,
+         "REASSIGN"   : self.POST_reassign}[action](form,case)
         date_pretty_printer = lambda x: x.strftime("%B %d, %Y")
         last_email = case.history[-1]['text']
         last_email = "\n".join("> %s"%x for x in textwrap.wrap(last_email))
         admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
         return render_template("admin/case", case, last_email, admins, date_pretty_printer)
     
+    def POST_reassign(self, form, case):
+        user = web.ctx.site.get_user()
+        assignee = form.get("assignee", False)
+        if assignee != case.assignee:
+            case.reassign(assignee, user.get_email(), '')
+            subject = "Case #%s has been assigned to you"%case.caseno
+            message = render_template("admin/email_reassign", case, '')
+            web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), assignee, subject, message)
+            add_flash_message("info", "Case reassigned")
+
     def POST_sendreply(self, form, case):
         user = web.ctx.site.get_user()
         assignee = case.assignee
