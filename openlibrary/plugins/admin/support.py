@@ -36,17 +36,9 @@ class case(object):
             return render_template("admin/cases", None, None, True, False)
         case = support_db.get_case(caseid)
         date_pretty_printer = lambda x: x.strftime("%B %d, %Y")
-        if len(case.history) == 1:
-            last_email = case.description
-        else:
-            last_email = case.history[-1]['text']
-        try:
-            last_email = "\n".join("  > %s"%x for x in last_email.split("\n")) + "\n\n"
-        except Exception:
-            last_email = ""
         admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
         case.update_message_count(user.get_email())
-        return render_template("admin/case", case, last_email, admins, date_pretty_printer)
+        return render_template("admin/case", case, admins, date_pretty_printer)
 
     def POST(self, caseid):
         if not support_db:
@@ -57,12 +49,11 @@ class case(object):
         {"SEND REPLY" : self.POST_sendreply,
          "UPDATE"     : self.POST_update,
          "CLOSE CASE" : self.POST_closecase,
+         "OPEN CASE"  : self.POST_opencase,
          "REASSIGN"   : self.POST_reassign}[action](form,case)
         date_pretty_printer = lambda x: x.strftime("%B %d, %Y")
-        last_email = case.history[-1]['text']
-        last_email = "\n".join("> %s"%x for x in textwrap.wrap(last_email))
         admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
-        return render_template("admin/case", case, last_email, admins, date_pretty_printer)
+        return render_template("admin/case", case, admins, date_pretty_printer)
     
     def POST_reassign(self, form, case):
         user = web.ctx.site.get_user()
@@ -78,9 +69,9 @@ class case(object):
         user = web.ctx.site.get_user()
         assignee = case.assignee
         casenote = form.get("casenote1", "")
-        casenote = "%s replied:\n\n%s"%(user.get_name(), casenote)
         case.add_worklog_entry(by = user.get_email(),
-                               text = casenote)
+                               text = casenote,
+                               summary = "replied")
         case.change_status("replied", user.get_email())
         email_to = form.get("email", False)
         subject = "Case #%s: %s"%(case.caseno, case.subject)
@@ -94,29 +85,33 @@ class case(object):
 
     def POST_update(self, form, case):
         casenote = form.get("casenote2", False)
-        assignee = form.get("assignee", False)
         user = web.ctx.site.get_user()
         by = user.get_email()
         text = casenote or ""
         if case.status == "closed":
             case.change_status("new", by)
-        if assignee != case.assignee:
-            case.reassign(assignee, by, text)
-            subject = "Case #%s has been assigned to you"%case.caseno
-            message = render_template("admin/email_reassign", case, text)
-            web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), assignee, subject, message)
         else:
             case.add_worklog_entry(by = by,
-                                   text = text)
+                                   text = text,
+                                   summary = "commented")
         add_flash_message("info", "Case updated")
 
+
+    def POST_opencase(self, form, case):
+        user = web.ctx.site.get_user()
+        by = user.get_email()
+        case.add_worklog_entry(by = by,
+                               text = '',
+                               summary = "opened the case")
+        case.change_status("new", by)
+        add_flash_message("info", "Case reopened")
 
     def POST_closecase(self, form, case):
         user = web.ctx.site.get_user()
         by = user.get_email()
-        text = "Case closed"
         case.add_worklog_entry(by = by,
-                               text = text)
+                               text = '',
+                               summary = "closed the case")
         case.change_status("closed", by)
         add_flash_message("info", "Case closed")
 

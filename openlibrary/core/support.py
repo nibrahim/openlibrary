@@ -91,9 +91,10 @@ class Case(Document):
     url               = TextField()
     created           = DateTimeField()
     message_count     = DictField()
-    history           = ListField(DictField(Mapping.build(at    = DateTimeField(),
-                                                          by    = TextField(),
-                                                          text  = TextField())))
+    history           = ListField(DictField(Mapping.build(at      = DateTimeField(),
+                                                          by      = TextField(),
+                                                          text    = TextField(),
+                                                          summary = TextField())))
 
     def __repr__(self):
         return "<Case ('%s')>"%self._id
@@ -107,14 +108,15 @@ class Case(Document):
         self.assignee = new_assignee
         entry = dict(by = by,
                      at = datetime.datetime.utcnow(),
-                     text = "Case reassigned to '%s'\n\n%s"%(new_assignee, text))
+                     summary = "reassigned the case to '%s'"%new_assignee)
         self.history.append(entry)
         self.store(self.db)
 
-    def add_worklog_entry(self, by, text):
+    def add_worklog_entry(self, by, text, summary):
         entry = dict(by = by,
                      at = datetime.datetime.utcnow(),
-                     text = text)
+                     text = text,
+                     summary = summary)
         self.history.append(entry)
         self.store(self.db)
 
@@ -152,6 +154,10 @@ class Case(Document):
         return age.days
         
     @property
+    def last_modified_comment(self):
+        return self.history[-1].comment
+
+    @property
     def last_modified_by(self):
         return self.history[-1].by
 
@@ -173,7 +179,7 @@ class Case(Document):
         ret = cls(**kargs)
         item = dict (at = ret.created,
                      by = ret.creator_name or ret.creator_email,
-                     text = "Case created")
+                     summary = "opened a new case")
         ret.history.append(item)
         return ret
 

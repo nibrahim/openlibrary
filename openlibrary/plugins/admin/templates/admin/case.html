@@ -1,14 +1,7 @@
-$def with (case, last_email, admins, pretty_print_date)
+$def with (case, admins, pretty_print_date)
 
 $var title: $case.subject ($case.creator_username)
 
-<script type="text/javascript">
-\$(function() {
-    \$("#checkbox3").change(function() {
-	\$("#textarea").val($:json_encode(last_email));
-    });
-    });
-</script>
 
 <style type="text/css">
 
@@ -50,8 +43,16 @@ table.info th {
                 
  }
 
+ul.casehistory h6 { 
+                    font-weight: normal;
+ }
 ul.casehistory h6 span.date { 
                               float: right;
+ }
+
+
+ul.casehistory h6 span.user { 
+                              font-weight: bold;
  }
 
 #content ul.casehistory { 
@@ -80,6 +81,11 @@ ul.casehistory h6 span.date {
 
 </style>
 
+$def get_summary(entry):
+   $if hasattr(entry, "summary"):
+      $:entry.summary
+
+
 <div id="contentHead">
     $:render_template("admin/menu", "/admin")
 </div>
@@ -95,6 +101,11 @@ $if case.status != "closed":
    <form method="POST">
      <input type="submit" name="button" id="close2" value="CLOSE CASE" />
    </form>
+$else:
+   <form method="POST">
+     <input type="submit" name="button" id="close2" value="OPEN CASE" />
+   </form>
+
 By
 $if (case.creator_name):
     <a href="/admin/people/$(case.creator_email)">$(case.creator_name)</a> 
@@ -129,7 +140,7 @@ $else:
 <ul class="casehistory">
   $for entry in case.history:
     <li class="casenote">
-	<h6>$(entry.by)	<span class="date">$(datestr(entry.at))</span></h6>
+	<h6><span class="user">$(entry.by)</span> $get_summary(entry) <span class="date">$(datestr(entry.at))</span></h6>
 	$if entry.text:
 	 <p>
 	    $:format(entry.text)
@@ -137,22 +148,23 @@ $else:
     </li>
 </ul>
 
-<table style="width: 100%">
-<tr>
-<td style="width: 50%; vertical-align: top;">
-    <h2>Send reply</h2>
-    <p>To: <input name="email" type="text" id="email" value="$(case.creator_email)" size="35" /> </p>
-    <p>
-	<input name="quote_email" type="checkbox" id="checkbox3" /> <label for="checkbox3">Quote latest email?</label><br />
-	<textarea class="markdown" name="casenote1" id="textarea" rows="10" style="width: 420px"></textarea>
-    </p>
-    <p><input type="submit" name="button" id="button3" value="SEND REPLY" /></p>	
-</td>
-<td style="width: 50%; vertical-align: top;">
-    <h2>Add Case Note</h2>
-    <p>Add Case Note:</p>
-    <p><textarea class="markdown" name="casenote2" id="textarea2" rows="10" style="width: 420px"></textarea></p>
-    <p><input type="submit" name="button" id="button" value="UPDATE" /></p>
-</td>
-</tr>
-</table>
+<form method="POST">
+  <table style="width: 100%">
+    <tr>
+      <td style="width: 50%; vertical-align: top;">
+	<h2>Send reply</h2>
+	<p>To: <input name="email" type="text" id="email" value="$(case.creator_email)" size="35" /> </p>
+	<p>
+	  <textarea class="markdown" name="casenote1" id="textarea" rows="10" style="width: 420px"></textarea>
+	</p>
+	<p><input type="submit" name="button" id="button3" value="SEND REPLY" /></p>	
+      </td>
+      <td style="width: 50%; vertical-align: top;">
+	<h2>Add Case Note</h2>
+	<p>Add Case Note:</p>
+	<p><textarea class="markdown" name="casenote2" id="textarea2" rows="10" style="width: 420px"></textarea></p>
+	<p><input type="submit" name="button" id="button" value="UPDATE" /></p>
+      </td>
+    </tr>
+  </table>
+</form>
