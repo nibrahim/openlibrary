@@ -148,23 +148,29 @@ $else:
     </li>
 </ul>
 
+<h2>Update case</h2>
+
+Reassign case to : 
+    <select name="assignee" id="assignee">
+      $for email,username,selected in admins:
+        $if selected:
+	  <option selected="selected" value="$:email">$username</option>
+        $else:
+	  <option value="$:email">$username</option>
+    </select>
+    <input type="hidden" name="button" value="REASSIGN"/>
+
+<h3>Add casenote</h3>
 <form method="POST">
-  <table style="width: 100%">
-    <tr>
-      <td style="width: 50%; vertical-align: top;">
-	<h2>Send reply</h2>
-	<p>To: <input name="email" type="text" id="email" value="$(case.creator_email)" size="35" /> </p>
-	<p>
-	  <textarea class="markdown" name="casenote1" id="textarea" rows="10" style="width: 420px"></textarea>
-	</p>
-	<p><input type="submit" name="button" id="button3" value="SEND REPLY" /></p>	
-      </td>
-      <td style="width: 50%; vertical-align: top;">
-	<h2>Add Case Note</h2>
-	<p>Add Case Note:</p>
-	<p><textarea class="markdown" name="casenote2" id="textarea2" rows="10" style="width: 420px"></textarea></p>
-	<p><input type="submit" name="button" id="button" value="UPDATE" /></p>
-      </td>
-    </tr>
-  </table>
+  <p>
+    <textarea class="markdown" name="casenote1" id="textarea" rows="10" style="width: 90%"></textarea>
+  </p>
+  <p>
+    <input type="checkbox" name="copycreator" id="copycreator" value="copy"/> <label for="copycreator">Send a copy of the message to </label>
+    <input name="email" type="text" id="email" value="$(case.creator_email)" size="35" />
+  </p>
+  <p>
+    <input type="checkbox" name="closecase" id="closecase"/> <label for="closecase">Close case after updating</label>
+  </p>
+  <p><input type="submit" name="button" id="button3" value="UPDATE CASE" /></p>	
 </form>
