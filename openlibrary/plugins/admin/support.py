@@ -36,7 +36,7 @@ class case(object):
             return render_template("admin/cases", None, None, True, False)
         case = support_db.get_case(caseid)
         date_pretty_printer = lambda x: x.strftime("%B %d, %Y")
-        admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
+        admins = [(x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members]
         case.update_message_count(user.get_email())
         return render_template("admin/case", case, admins, date_pretty_printer)
 
@@ -52,7 +52,7 @@ class case(object):
          "OPEN CASE"  : self.POST_opencase,
          "REASSIGN"   : self.POST_reassign}[action](form,case)
         date_pretty_printer = lambda x: x.strftime("%B %d, %Y")
-        admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
+        admins = [(x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members]
         return render_template("admin/case", case, admins, date_pretty_printer)
     
     def POST_reassign(self, form, case):

@@ -149,19 +149,19 @@ $else:
 </ul>
 
 <h2>Update case</h2>
-
-Reassign case to : 
-    <select name="assignee" id="assignee">
-      $for email,username,selected in admins:
-        $if selected:
-	  <option selected="selected" value="$:email">$username</option>
-        $else:
-	  <option value="$:email">$username</option>
-    </select>
-    <input type="hidden" name="button" value="REASSIGN"/>
-
-<h3>Add casenote</h3>
 <form method="POST">
+  Reassign case to : 
+  <select name="assignee" id="assignee">
+    $for email,username,selected in admins:
+        $if selected:
+          <option selected="selected" value="$:email">$username</option>
+        $else:
+          <option value="$:email">$username</option>
+  </select>
+  <input type="hidden" name="button" value="REASSIGN"/>
+
+  <h3>Add casenote</h3>
+
   <p>
     <textarea class="markdown" name="casenote1" id="textarea" rows="10" style="width: 90%"></textarea>
   </p>
