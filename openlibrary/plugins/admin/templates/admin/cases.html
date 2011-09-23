@@ -39,8 +39,8 @@ $def link(url, title, extra):
     $else:
         <a href="$url">$title $extra</a>
 
-$def onlyself_flag():
-   $if query_param("all") == "true":
+$def checkbox_flag(name, value):
+   $if query_param(name) == value:
      checked="true"
    
    
@@ -56,7 +56,9 @@ $else:
     <br/>
     <form method="post" id="userfilter">
 	<label for="mine">Show all cases (not just mine)</label>
-	<input type="checkbox" $onlyself_flag() name="all" value="true" id="mine" onChange="\$('#userfilter').submit();"/>
+	<input type="checkbox" $checkbox_flag("all", "true") name="all" value="true" id="mine" onChange="\$('#userfilter').submit();"/>
+	<label for="reverse">Show oldest cases first</label>
+	<input type="checkbox" $checkbox_flag("desc", "false") name="desc" value="false" id="mine" onChange="\$('#userfilter').submit();"/>
     </form>
   </p>
 
