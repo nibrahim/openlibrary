@@ -50,34 +50,54 @@ class case(object):
                          assignee = case.assignee,
                          closecase = False,
                          casenote = "",
-                         email = case.creator_email)
-        summary = "commented"
-        casenote = form['casenote']
-        if form["copycreator"]:
-            summary = "replied"
-            if assignee != user.get_email(): # Automatic reassign if updated by someone else. 
-                case.reassign(user.get_email())
-            email_to = form.get("email", False)
-            subject = "Case #%s: %s"%(case.caseno, case.subject)
-            if email_to:
-                message = render_template("admin/email", case, casenote)
-                web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), email_to, subject, message)
-        if form["assignee"] != case.assignee: # Reassignments
-            summary = "reassigned case to '%s'"%form.get("assignee","")
-            case.reassign(form["assignee"])
+                         email = case.creator_email,
+                         button = False)
+        if form["button"]:
+            {"REASSIGN": self.POST_reassign,
+             "CLOSE CASE": self.POST_closecase,
+             "OPEN CASE": self.POST_opencase}[form["button"]](form, case)
+        else:
+            # TBD This needs to be cleaned up
+            summary = "commented"
+            casenote = form['casenote']
+            if form["copycreator"]:
+                summary = "replied"
+                if assignee != user.get_email(): # Automatic reassign if updated by someone else. 
+                    case.reassign(user.get_email())
+                email_to = form.get("email", False)
+                subject = "Case #%s: %s"%(case.caseno, case.subject)
+                if email_to:
+                    message = render_template("admin/email", case, casenote)
+                    web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), email_to, subject, message)
+            if form["assignee"] != case.assignee: # Reassignments
+                summary = "reassigned case to '%s'"%form.get("assignee","")
+                case.reassign(form["assignee"])
+                subject = "Case #%s has been assigned to you"%case.caseno
+                message = render_template("admin/email_reassign", case, '')
+                web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), assignee, subject, message)
+                add_flash_message("info", "Case reassigned")
+            if form["closecase"]: # Closing cases
+                summary = "closed the case"
+                case.change_status("closed")
+                add_flash_message("info", "Case closed")
+            case.add_worklog_entry(by = by,
+                                   text = casenote,
+                                   summary = summary)
+        admins = [(x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members]
+        return render_template("admin/case", case, admins)
+
+    def POST_reassign(self, form, case):
+        user = web.ctx.site.get_user()
+        assignee = form.get("assignee", False)
+        if assignee != case.assignee:
+            case.reassign(assignee)
             subject = "Case #%s has been assigned to you"%case.caseno
             message = render_template("admin/email_reassign", case, '')
             web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), assignee, subject, message)
             add_flash_message("info", "Case reassigned")
-        if form["closecase"]: # Closing cases
-            summary = "closed the case"
-            case.change_status("closed")
-        case.add_worklog_entry(by = by,
-                               text = casenote,
-                               summary = summary)
-        admins = [(x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members]
-        return render_template("admin/case", case, admins)
-    
+            case.add_worklog_entry(by = user.get_email(),
+                                   text =  "",
+                                   summary = "reassigned case to '%s'"%form.get("assignee",""))
 
     def POST_opencase(self, form, case):
         user = web.ctx.site.get_user()
