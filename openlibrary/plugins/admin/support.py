@@ -51,7 +51,8 @@ class case(object):
                          closecase = False,
                          casenote = "",
                          email = case.creator_email,
-                         button = False)
+                         button = False,
+                         ret = False)
         if form["button"]:
             {"REASSIGN": self.POST_reassign,
              "CLOSE CASE": self.POST_closecase,
@@ -84,6 +85,8 @@ class case(object):
                                    text = casenote,
                                    summary = summary)
         admins = [(x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members]
+        if form["ret"]:
+            raise web.redirect("/admin/support")
         return render_template("admin/case", case, admins)
 
     def POST_reassign(self, form, case):
@@ -116,7 +119,7 @@ class case(object):
                                summary = "closed the case")
         case.change_status("closed")
         add_flash_message("info", "Case closed")
-
+        raise web.redirect("/admin/support")
 
 def setup():
     global support_db
