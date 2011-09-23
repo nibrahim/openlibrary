@@ -1,4 +1,4 @@
-$def with (case, admins, pretty_print_date)
+$def with (case, admins)
 
 $var title: $case.subject ($case.creator_username)
 
@@ -163,7 +163,7 @@ $else:
   <h3>Add casenote</h3>
 
   <p>
-    <textarea class="markdown" name="casenote1" id="textarea" rows="10" style="width: 90%"></textarea>
+    <textarea class="markdown" name="casenote" id="textarea" rows="10" style="width: 90%"></textarea>
   </p>
   <p>
     <input type="checkbox" name="copycreator" id="copycreator" value="copy"/> <label for="copycreator">Send a copy of the message to </label>

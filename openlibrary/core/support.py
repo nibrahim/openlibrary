@@ -99,17 +99,13 @@ class Case(Document):
     def __repr__(self):
         return "<Case ('%s')>"%self._id
 
-    def change_status(self, new_status, by):
+    def change_status(self, new_status):
         self.status = new_status
         self.store(self.db)
 
 
-    def reassign(self, new_assignee, by, text = ""):
+    def reassign(self, new_assignee):
         self.assignee = new_assignee
-        entry = dict(by = by,
-                     at = datetime.datetime.utcnow(),
-                     summary = "reassigned the case to '%s'"%new_assignee)
-        self.history.append(entry)
         self.store(self.db)
 
     def add_worklog_entry(self, by, text, summary):
