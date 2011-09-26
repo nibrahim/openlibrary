@@ -59,10 +59,10 @@ class case(object):
         user = web.ctx.site.get_user()
         assignee = form.get("assignee", False)
         if assignee != case.assignee:
-            case.reassign(assignee, user.get_email(), '')
+            case.reassign(assignee)
             case.add_worklog_entry(by = user.get_email(),
-                                   at = datetime.datetime.utcnow(),
-                                   summary = "reassigned the case to '%s'"%new_assignee)
+                                   text = "",
+                                   summary = "reassigned the case to '%s'"%assignee)
             subject = "Case #%s has been assigned to you"%case.caseno
             message = render_template("admin/email_reassign", case, '')
             web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), assignee, subject, message)
@@ -79,7 +79,7 @@ class case(object):
         email_to = form.get("email", False)
         subject = "Case #%s: %s"%(case.caseno, case.subject)
         if assignee != user.get_email():
-            case.reassign(user.get_email(), user.get_name(), "")
+            case.reassign(user.get_email())
         if email_to:
             message = render_template("admin/email", case, casenote)
             web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), email_to, subject, message)
