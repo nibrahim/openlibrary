@@ -161,9 +161,16 @@ $else:
       </td>
       <td style="width: 50%; vertical-align: top;">
 	<h2>Add Case Note</h2>
-	<p>Add Case Note:</p>
+	Reassign to : <select name="assignee" id="assignee">
+	  $for email,username,selected in admins:
+	    $if selected:
+	      <option selected="selected" value="$:email">$username</option>
+	    $else:
+	      <option value="$:email">$username</option>
+	</select>
 	<p><textarea class="markdown" name="casenote2" id="textarea2" rows="10" style="width: 420px"></textarea></p>
-	<p><input type="submit" name="button" id="button" value="UPDATE" /></p>
+	<p><input type="submit" name="button" id="button" value="UPDATE" /> 
+	<input type="submit" name="button" id="close2" value="CLOSE CASE" /></p>
       </td>
     </tr>
   </table>

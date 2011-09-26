@@ -36,7 +36,7 @@ class case(object):
             return render_template("admin/cases", None, None, True, False)
         case = support_db.get_case(caseid)
         date_pretty_printer = lambda x: x.strftime("%B %d, %Y")
-        admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
+        admins = [(x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members]
         case.update_message_count(user.get_email())
         return render_template("admin/case", case, admins, date_pretty_printer)
 
@@ -52,7 +52,7 @@ class case(object):
          "OPEN CASE"  : self.POST_opencase,
          "REASSIGN"   : self.POST_reassign}[action](form,case)
         date_pretty_printer = lambda x: x.strftime("%B %d, %Y")
-        admins = ((x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members)
+        admins = [(x.get_email(), x.get_name(), x.get_email() == case.assignee) for x in web.ctx.site.get("/usergroup/admin").members]
         return render_template("admin/case", case, admins, date_pretty_printer)
     
     def POST_reassign(self, form, case):
@@ -60,6 +60,9 @@ class case(object):
         assignee = form.get("assignee", False)
         if assignee != case.assignee:
             case.reassign(assignee, user.get_email(), '')
+            case.add_worklog_entry(by = user.get_email(),
+                                   at = datetime.datetime.utcnow(),
+                                   summary = "reassigned the case to '%s'"%new_assignee)
             subject = "Case #%s has been assigned to you"%case.caseno
             message = render_template("admin/email_reassign", case, '')
             web.sendmail(config.get("support_case_control_address","support@openlibrary.org"), assignee, subject, message)
@@ -88,12 +91,20 @@ class case(object):
         user = web.ctx.site.get_user()
         by = user.get_email()
         text = casenote or ""
+        assignee = form.get("assignee", False)
+        summary = "commented"
+        if case.assignee != assignee:
+            case.reassign(assignee)
+            summary = "reassigned the case to '%s'"%assignee
         if case.status == "closed":
             case.change_status("new", by)
+            case.add_worklog_entry(by = by,
+                                   text = text,
+                                   summary = "reopened the case")
         else:
             case.add_worklog_entry(by = by,
                                    text = text,
-                                   summary = "commented")
+                                   summary = summary)
         add_flash_message("info", "Case updated")
 
 
@@ -109,11 +120,13 @@ class case(object):
     def POST_closecase(self, form, case):
         user = web.ctx.site.get_user()
         by = user.get_email()
+        casenote = form.get("casenote2", False)
         case.add_worklog_entry(by = by,
-                               text = '',
+                               text = casenote or "",
                                summary = "closed the case")
         case.change_status("closed", by)
         add_flash_message("info", "Case closed")
+        raise web.redirect("/admin/support")
 
 
 def setup():
