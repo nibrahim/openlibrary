@@ -8,14 +8,18 @@ from openlibrary.catalog.marc.marc_binary import MarcBinary
 from openlibrary.catalog.marc.marc_xml import MarcXml
 from openlibrary.catalog.marc.parse import read_edition
 from openlibrary.catalog import add_book
+from openlibrary.plugins.importapi.import_edition_builder import import_edition_builder as ebuilder
 
 #import openlibrary.tasks
 from ... import tasks
 
 import web
+
+import base64
 import json
 import re
 import urllib
+
 import import_opds
 import import_rdf
 import import_edition_builder
@@ -32,7 +36,6 @@ def parse_meta_headers(edition_builder):
         if m:
             meta_key = m.group(1).lower()
             edition_builder.add(meta_key, v, restrict_keys=False)
-
 
 def parse_data(data):
     data = data.strip()
@@ -150,7 +153,6 @@ class ils_search:
         {
             "title": "",
             "author": "",
-            "isbn": ...,
             "publisher": "...",
             "publish_year": "...",
             "isbn": [...],
@@ -182,8 +184,13 @@ class ils_search:
     
         # step 2: search 
         key = self.search(data)
-    
-        # step 3: TODO if no match found, create it
+        print "After searching ", key
+
+        # step 3: if no match found, create it
+        if not key:
+            self.create_entry(data)
+        else:
+            print "Didn't create. We already found something ",key
         
         # step 4: format the result
         doc = key and web.ctx.site.get(key).dict()
@@ -194,15 +201,25 @@ class ils_search:
         data = dict(rawdata)
         isbns = data.pop("isbn", None)
         if isbns:
-            data['isbn_13'] = [n for n in isbns if len(n.replace("-", "")) == 13]
-            data['isbn_10'] = [n for n in isbns if len(n.replace("-", "")) != 13]
+            data['isbn_13'] = [str(n) for n in isbns if len(str(n).replace("-", "")) == 13]
+            data['isbn_10'] = [str(n) for n in isbns if len(str(n).replace("-", "")) != 13]
         return data
         
     def search(self, record):
         key = add_book.early_exit(record)
         if key:
-            return key
-            
+            return key            
+
+    def create_entry(self, data):
+        import uuid
+        api_dict = ebuilder(data)
+        isbn = data.get("isbn_10","") or data.get("isbn_13","")
+        isbn = ",".join(isbn)
+        source = "Koha:"+isbn
+        api_dict.add('source_record', source)
+        print "Dict to load is ", api_dict.get_dict()
+        add_book.load(api_dict.get_dict())
+
     def format_result(self, doc):
         if doc:
             d = {
