@@ -121,8 +121,8 @@ def test_early_exit(mock_site):
     
 def test_load(mock_site):
     add_languages(mock_site)
-    rec = {'ocaid': 'test item'}
     py.test.raises(RequiredField, load, {'ocaid': 'test_item'})
+    py.test.raises(RequiredField, load, {'title': 'test'})
 
     rec = {
         'ocaid': 'test_item',
