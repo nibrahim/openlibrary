@@ -1,5 +1,5 @@
 from load_book import build_query, InvalidLanguage
-from . import load, RequiredField, build_pool, add_db_name
+from . import load, RequiredField, build_pool, add_db_name, early_exit
 import py.test
 from openlibrary.catalog.merge.merge_marc import build_marc
 from openlibrary.catalog.marc.parse import read_edition
@@ -39,6 +39,86 @@ def test_build_query(mock_site):
 
     py.test.raises(InvalidLanguage, build_query, {'languages': ['wtf']})
 
+def test_early_exit(mock_site):
+    # Prepare data store
+    etype = '/type/edition'
+    ## Match by ocaid
+    ekey = mock_site.new_key(etype)
+    e = {
+        'title': 'test1',
+        'type': {'key': etype},
+        'lccn': ['123'],
+        'oclc_numbers': ['456'],
+        'key': ekey,
+        'ocaid': "12345",
+    }
+    mock_site.save(e)
+    ### Try matching by ocaid (negative)
+    q = {"ocaid" : "12346"}
+    pool = early_exit(q)
+    assert not pool, "OCAID search matched %s when it was not supposed to "%pool
+
+    ### Try matching by ocaid (positive)
+    pool = early_exit({"ocaid" : "12345"})
+    assert pool == ekey, "OCAID search didn't match added book. Pool was %s and expected was %s"%(pool, ekey0)
+
+    ## Match by source_records
+    ekey0 = mock_site.new_key(etype)
+    ekey1 = mock_site.new_key(etype)
+    ekey2 = mock_site.new_key(etype)
+    e0 = {
+        'title': 'test1',
+        'type': {'key': etype},
+        'lccn': ['123'],
+        'oclc_numbers': ['456'],
+        'key': ekey0,
+        'ocaid': "12345",
+        "source_records" : ["Koha 1"]
+    }
+    e1 = {
+        'title': 'test1',
+        'type': {'key': etype},
+        'lccn': ['123'],
+        'oclc_numbers': ['456'],
+        'key': ekey1,
+        'ocaid': "12345",
+        "source_records" : ["Koha 2"]
+    }
+    e2 = { # This one used for to check for repetitions
+        'title': 'test1',
+        'type': {'key': etype},
+        'lccn': ['123'],
+        'oclc_numbers': ['456'],
+        'key': ekey2,
+        'ocaid': "12345",
+        "source_records" : ["Koha 1"]
+    }
+
+    mock_site.save(e0)
+    mock_site.save(e1)
+    mock_site.save(e2)
+
+    ### Try matching by source_records (negative)
+    pool = early_exit({"source_records" : ["Koha 3"]})
+    assert not pool, "Source record search matched %s when nothing should have"% pool
+
+    ### Try matching by source_records (positive) (should return first)
+    pool = early_exit({"source_records" : ["Koha 1"]})
+    assert pool == ekey0, "Source record search didn't match added book. Pool was %s and expected was %s"%(pool, ekey0)
+
+    # FIXME: Add cases for other criteria
+    
+    
+
+
+
+    
+
+
+
+
+
+    
 def test_load(mock_site):
     add_languages(mock_site)
     rec = {'ocaid': 'test item'}
