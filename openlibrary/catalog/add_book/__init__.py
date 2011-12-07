@@ -260,23 +260,21 @@ def add_db_name(rec):
 re_lang = re.compile('^/languages/([a-z]{3})$')
 
 def early_exit(rec):
-    f = 'ocaid'
-    if 'ocaid' in rec:
-        q = {
-            'type':'/type/edition',
-            f: rec[f],
-        }
-        ekeys = list(web.ctx.site.things(q))
-        if ekeys:
-            return ekeys[0]
-
-    for f in 'source_records', 'isbn_10', 'isbn_13', 'oclc_numbers':
-        if rec.get(f):
-            q = {
+    """
+    Searches for matches based on ocaid, source_records, isbn_10, isbn_13 and oclc_numbers
+    Returns list of keys matched
+    """
+    fields = ['ocaid', 'source_records', 'isbn_10', 'isbn_13', 'oclc_numbers']
+    for f in fields:
+        if f in rec:
+            val = rec[f]
+            if isinstance(val, list): # Dirty hack to use only first element in case of list values
+                val = val[0]
+            query = {
                 'type':'/type/edition',
-                f: rec[f][0],
-            }
-            ekeys = list(web.ctx.site.things(q))
+                f: val,
+                }
+            ekeys = list(web.ctx.site.things(query))
             if ekeys:
                 return ekeys[0]
     return False
