@@ -1,5 +1,5 @@
 from load_book import build_query, InvalidLanguage
-from . import load, RequiredField, build_pool, add_db_name, early_exit
+from . import load, RequiredField, build_pool, add_db_name, early_exit, find_editions
 import py.test
 from openlibrary.catalog.merge.merge_marc import build_marc
 from openlibrary.catalog.marc.parse import read_edition
@@ -109,11 +109,56 @@ def test_early_exit(mock_site):
     # FIXME: Add cases for other criteria
     
     
+def test_find_editions(mock_site):
+    etype = '/type/edition'
+    ekey0 = mock_site.new_key(etype)
+    e = {
+        'title'        : 'test1',
+        'type'         : {'key': etype},
+        'lccn'         : ['123'],
+        'oclc_numbers' : ['456'],
+        'key'          : ekey0,
+        'ocaid'        : "12345",
+        'isbn_10'      : ["1234567890"]
+        }
+    mock_site.save(e)
 
+    # Check matching by title
+    matches = find_editions({"title" : "test1"})
+    assert matches['title'] == [ekey0], "Should have matched by title but it didn't. "
+    matches = find_editions({"title" : "test2"})
+    assert not matches, "Shouldn't have matched by title but it did. "
+
+    # Check priority of matching. The ISBN_10 match should be the only thing matched
+    ## Add something with a different ISBN but search using the the title e1. 
+    ## Only the ISBN should get matched
+    ekey1 = mock_site.new_key(etype)
+    e = {
+        'title'        : 'test2',
+        'type'         : {'key': etype},
+        'lccn'         : ['123'],
+        'oclc_numbers' : ['456'],
+        'key'          : ekey1,
+        'ocaid'        : "12345",
+        'isbn_10'      : ["1111111111"]
+        }
+    mock_site.save(e)
+    matches = find_editions({"isbn_10" : ["1111111111"], "title" : "test1"})
+    assert len(matches.keys()) == 1, "More than one key matches %s"%matches.keys()
+    assert "isbn_10" in matches, "ISBN not matched %s"%matches
+    assert matches['isbn_10'] == [ekey1], "ISBN search should have matched %s but got %s instead"%(ekey1, matches['isbn_10'])
+    
+
+    
+    
+    
+    
 
 
     
+    
 
+    
 
 
 

@@ -209,6 +209,62 @@ def find_match(e1, edition_pool):
             if try_merge(e1, edition_key, thing):
                 return edition_key
 
+def find_editions(rec):
+    """
+    Finds editions for the provided record.
+    
+    Returns
+    {
+     "title" : ["/books/OL1M", "/books/OL2M" ...]
+     "ocaid" : ["/books/OL3M"...]
+    }
+
+    The functions `find_by_x` find matches on field x if it exists in record.
+    
+    """
+    # The following functions find works which match on the given
+    # fields.
+    def find_by_title(title):
+        query = {
+            'type':'/type/edition',
+            "title": title,
+            }
+        ekeys = list(web.ctx.site.things(query))
+        return ekeys
+
+    def find_by_isbn(isbns):
+        ret = []
+        for isbn in isbns:
+            if len(isbn) == 10:
+                query = {
+                    'type':'/type/edition',
+                    "isbn_10": isbn,
+                    }
+            if len(isbn) == 13:
+                query = {
+                    'type':'/type/edition',
+                    "isbn_13": isbn,
+                    }
+            ekeys = list(web.ctx.site.things(query))
+            ret.extend(ekeys)
+        return ret
+
+    matchers = dict(title   = find_by_title,
+                    isbn_10 = find_by_isbn,
+                    isbn_13 = find_by_isbn,
+                    )
+    fields = ["isbn_10", "isbn_13", "title"] 
+
+    for field in fields:
+        if field in rec:
+            matcher = matchers[field]
+            matches = matcher(rec[field])
+            if matches:
+                return {field : matches}
+    
+    
+    
+
 def build_pool(rec):
     pool = defaultdict(set)
     
