@@ -55,6 +55,17 @@ def get_title(e):
     return e['title'] if wt in bad_titles else e['title']
 
 def find_matching_work(e):
+    """
+    Input: An edition
+    
+    For each author, 
+      find works with the author
+      for each of these works,
+        If it has a title and it it equal to the title of the work, return it
+
+    Basically, returns a work for the provided edition by searching via. author
+    
+    """
     norm_title = mk_norm(get_title(e))
 
     seen = set()
@@ -76,6 +87,22 @@ def find_matching_work(e):
                 return wkey
 
 def build_author_reply(author_in, edits):
+    """
+    Input: author_in is a list of authors
+           edits is a return value used to indicate changed authors
+
+    For each author in author_in
+      If there's no "key" in the author, it's new
+           Add it to the database and append it to edits
+      add {key:authorkey} to list authors
+      add {key:authorkey, name:authorname, status:created|modified} to list author_reply
+    return above two
+
+    Basically, for all authors provided, create them if they don't
+    exist and return the ones along with whether they were created or
+    not
+           
+    """
     authors = []
     author_reply = []
     for a in author_in:
@@ -92,6 +119,15 @@ def build_author_reply(author_in, edits):
     return (authors, author_reply)
 
 def new_work(q, rec, cover_id):
+    """
+    Input: rec is an edition, cover_id is cover, q is TBD.
+
+    q is used to pick up authors from. 
+
+    Create a new work for the given edition `rec`. Covers are attached
+    if provided.
+    """
+
     w = {
         'type': {'key': '/type/work'},
         'title': get_title(rec),
@@ -183,11 +219,19 @@ def load_data(rec):
     return reply
 
 def is_redirect(i):
+    """
+    Returns true if `i` is a redirect object.
+    """
     if not i:
         return False
     return i.type.key == '/type/redirect'
 
 def find_match(e1, edition_pool):
+    """
+    A dictionary of editions (built by build_pool)
+    e1 returned by build_marc
+
+    """
     seen = set()
     for k, v in edition_pool.iteritems():
         for edition_key in v:
@@ -266,19 +310,36 @@ def find_editions(rec):
     
 
 def build_pool(rec):
+    """
+    Creates a pool of editions that match the provided one. 
+    Match criteria are. The return value will be a dict type {"criterion": matches} for each of the below.
+     1. Same normalised title.
+     2. Same actual title
+     3. Matching ISBNs (10 and 13)
+     4. matching oclc_numbers 
+     5. Matching lccn
+
+    """
     pool = defaultdict(set)
     
     ## Find records with matching title
+    # First search with normalised title
     assert isinstance(rec.get('title'), basestring)
     q = {
         'type': '/type/edition',
         'normalized_title_': normalize(rec['title'])
     }
-    pool['title'] = set(web.ctx.site.things(q))
+    norm_title_matches = web.ctx.site.things(q)
+    if norm_title_matches: 
+        pool['title'] = set(norm_title_matches)
 
+    # Now with the actual title
     q['title'] = rec['title']
     del q['normalized_title_']
-    pool['title'].update(web.ctx.site.things(q))
+    actual_title_matches = web.ctx.site.things(q)
+    if actual_title_matches:
+        pool['title'].update(set(actual_title_matches))
+
     
     ## Find records with matching ISBNs
     isbns = rec.get('isbn', []) + rec.get('isbn_10', []) + rec.get('isbn_13', [])
@@ -298,7 +359,9 @@ def build_pool(rec):
                 found = web.ctx.site.things(q)
                 if found:
                     pool[field] = set(found)
-    return dict((k, list(v)) for k, v in pool.iteritems())
+
+    retval = dict((k, list(v)) for k, v in pool.iteritems())
+    return retval
 
 def add_db_name(rec):
     if 'authors' not in rec:
@@ -336,18 +399,44 @@ def early_exit(rec):
     return False
 
 def find_exact_match(rec, edition_pool):
+    """
+    Tries to find something that exactly matches the given `rec` in
+    `edition_pool`. Exact match means having the same language and
+    same authors.
+
+    rec is the input to the main `load` method. The record we want to
+    add in the appropriate format
+    
+    edition_pool is the dictionary of matches created by build_pool. It is a dictionary of matches of the form
+    {
+    "title" : set(["/books/OL1M", ...]),
+    "isbn"  : set(["/books/OL2M', "/books/OL3M", ...])
+    .
+    .
+    .
+    }
+    Each key is the item matches upon and the value is a the set of matched items.
+    """
     seen = set()
+    # Do the search for every item matches were founded on (title, isbn etc.)
     for field, editions in edition_pool.iteritems():
+        ## Check each match but only once. 
         for ekey in editions:
             if ekey in seen:
                 continue
             seen.add(ekey)
+            ## Get the existing entry with this key
             existing = web.ctx.site.get(ekey)
             match = True
-            for k, v in rec.items():
+            ## Take each key in the record to be added and compare
+            ## against `existing`.n
+            for k, v in rec.iteritems():
+                print " Checking by %s"%k
+                ### Don't match by source_record
                 if k == 'source_records':
                     continue
                 existing_value = existing.get(k)
+                ### Ignore records that aren't there. 
                 if not existing_value:
                     continue
                 if k == 'languages':
@@ -406,6 +495,15 @@ def add_cover(cover_url, ekey):
     return cover_id
 
 def load(rec):
+    """
+    The main entry point to the import api
+    
+    The format of `rec` is designed just for this API. It can be built using
+    openlibrary.plugins.importapi.import_edition_builder.import_edition_builder
+
+    This function will create a record based on `rec`. 
+
+    """
     if not rec.get('title'):
         raise RequiredField('title')
     if not rec.get('source_records'):
@@ -461,54 +559,25 @@ def load(rec):
         'work': {'key': w['key'], 'status': 'matched'},
     }
 
+    print "e is ",e
+
+    # Add the source we got this from to the source_records of the
+    # existing edition if it's not already there.
     if not e.get('source_records'):
         e['source_records'] = []
     existing_source_records = set(e['source_records'])
+    print "existing_source_records ", existing_source_records
     for i in rec['source_records']:
         if i not in existing_source_records:
             e['source_records'].append(i)
             need_edition_save = True
     assert e['source_records']
-
+    
+    
+    # Now, make the edits needed (I think)
     edits = []
-    if False and rec.get('authors'):
-        reply['authors'] = []
-        east = east_in_by_statement(rec)
-        work_authors = list(w.get('authors', []))
-        edition_authors = list(e.authors)
-        author_in = [import_author(a, eastern=east) for a in rec['authors']]
-        for a in author_in:
-            new_author = 'key' not in a
-            add_to_work = False
-            add_to_edition = False
-            if new_author:
-                a['key'] = web.ctx.site.new_key('/type/author')
-                assert isinstance(a, dict)
-                edits.append(a)
-                add_to_work = True
-                add_to_edition = True
-            else:
-                if not any(i['author'] == a for i in work_authors):
-                    add_to_work = True
-                if all(i['key'] != a['key'] for i in edition_authors):
-                    add_to_edition = True
-            if add_to_work:
-                need_work_save = True
-                work_authors.append({
-                    'type': {'key': '/type/author_role'},
-                    'author': {'key': a['key'] },
-                })
-            if add_to_edition:
-                need_edition_save = True
-                edition_authors.append({'key': a['key'] })
 
-            reply['authors'].append({
-                'key': a['key'],
-                'name': a['name'],
-                'status': ('created' if new_author else 'modified'),
-            })
-        w['authors'] = work_authors
-        e['authors'] = edition_authors
+    
     if 'subjects' in rec:
         work_subjects = list(w.get('subjects', []))
         for s in rec['subjects']:
