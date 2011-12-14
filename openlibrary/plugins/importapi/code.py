@@ -17,8 +17,10 @@ import web
 
 import base64
 import json
+import pprint
 import re
 import urllib
+
 
 import import_opds
 import import_rdf
@@ -184,7 +186,6 @@ class ils_search:
     
         # step 2: search 
         key = self.search(data)
-        print "After searching ", key
 
         # step 3: if no match found, create it
         if not key:
@@ -193,9 +194,9 @@ class ils_search:
             print "Didn't create. We already found something ",key
         
         # step 4: format the result
-        doc = key and web.ctx.site.get(key).dict()
-        d = self.format_result(doc)
-        return json.dumps(d)
+        # doc = key and web.ctx.site.get(key).dict()
+        # d = self.format_result(doc)
+        return json.dumps({})
         
     def prepare_data(self, rawdata):
         data = dict(rawdata)
@@ -206,17 +207,31 @@ class ils_search:
         return data
         
     def search(self, record):
-        key = add_book.early_exit(record)
-        if key:
-            return key            
+        matches = add_book.find_editions(record)
+        if matches:
+            return matches
 
     def create_entry(self, data):
-        import uuid
-        api_dict = ebuilder(data)
+        api_dict = ebuilder()
+        # Add source record
         isbn = data.get("isbn_10","") or data.get("isbn_13","")
         isbn = ",".join(isbn)
         source = "Koha:"+isbn
         api_dict.add('source_record', source)
+        # Add the authors
+        for a in data.get("authors",[]):
+            print "Adding %s", a
+            api_dict.add_author(None, a)
+        # Add rest of the fields
+        for field in ["title", "publisher", "publish_date", "isbn_10", "isbn_13"]:
+            val = data.get(field)
+            if val:
+                if isinstance(val, list):
+                    for i in val:
+                        api_dict.add(field, i)
+                else:
+                    api_dict.add(field, val)
+
         print "Dict to load is ", api_dict.get_dict()
         add_book.load(api_dict.get_dict())
 
