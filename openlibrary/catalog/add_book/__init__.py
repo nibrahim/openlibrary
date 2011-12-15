@@ -72,7 +72,7 @@ def find_matching_work(e):
     for a in e['authors']:
         q = {
             'type':'/type/work',
-            'authors.author': a['key'],
+            'authors' : {'author' : {'key' : a['key']}}
         }
         work_keys = list(web.ctx.site.things(q))
         for wkey in work_keys:
