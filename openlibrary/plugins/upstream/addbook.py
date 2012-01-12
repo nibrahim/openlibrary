@@ -679,20 +679,18 @@ class work_identifiers(delegate.view):
         saveutil = DocSaveHelper()
         i = web.input(isbn = "")
         isbn = i.get("isbn")
+        data = edition.get_identifiers()
+        import pdb; pdb.set_trace()
         # Need to do some simple validation here. Perhaps just check if it's a number?
         if len(isbn) == 10:
             typ = "ISBN 10"
-            data = [{'name': u'isbn_10', 'value': isbn}]
+            data[u'isbn_10'] = web.storage(url = None, name = u"isbn_10", value = isbn, label = u"ISBN 10")
         elif len(isbn) == 13:
             typ = "ISBN 13"
-            data = [{'name': u'isbn_13', 'value': isbn}]
+            data[u'isbn_13'] = web.storage(url = None, name = u"isbn_13", value = isbn, label = u"ISBN 13")
         else:
             add_flash_message("error", "The ISBN number you entered was not valid")
             raise web.redirect(web.ctx.path)
-        if edition.works:
-            work = edition.works[0]
-        else:
-            work = None
         edition.set_identifiers(data)
         saveutil.save(edition)
         saveutil.commit(comment="Added an %s identifier."%typ, action="edit-book")
