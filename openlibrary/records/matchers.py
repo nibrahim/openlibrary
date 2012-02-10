@@ -117,9 +117,9 @@ def match_tap_solr(params):
         work_results = wsolr.select(query, q_op="AND")['docs']
     
 
-    work_keys = [x.key for x in works]
+    work_keys = [x.key for x in work_results]
     works = list(web.ctx.site.get("/works/%s"%y) for y in work_keys)
-    edition_keys = list(itertools.chain(*[x.edition_key for x in works if x.edition_count]))
+    edition_keys = list(itertools.chain(*[x.edition_key for x in work_results if x.edition_count]))
     editions = list(web.ctx.site.get("/books/%s"%y) for y in edition_keys)
 
     if editions:
@@ -140,7 +140,6 @@ def match_tap_solr(params):
     if publish_year:
         matches = itertools.ifilter(lambda x: get_publish_year(x.get('publish_date','')) == publish_year,
                                     matches)
-    
     return [x.key for x in matches]
 
 
