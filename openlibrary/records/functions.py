@@ -171,8 +171,9 @@ def massage_search_results(things, input_query = {}):
 def build_create_input(params):
     params['key'] = None
     params['type'] = '/type/edition'
-    params['work'] = {'key' : None}
+    params['work'] = {'key' : None, 'title' : params.get("title","")}
     params['authors'] = [{'name' : x['name'], 'key' : None} for x in params.get('authors',[])]
+    # TODO: Put the rest of the input fields in here. 
     return params
     
 
@@ -330,7 +331,13 @@ def edition_doc_to_things(doc):
         for i in authors:
             a = {'type': '/type/author_role', 'author': i['key']} #TODO : Check this with Anandb
             work[0].setdefault('authors',[]).append(a) # Attach this author to the work
+
+    # Attach work to edition
+    if work:
+        doc['works'] = [ {"key" : work[0]['key']}]
+            
     return retval
+
 
 
 def work_doc_to_things(doc):

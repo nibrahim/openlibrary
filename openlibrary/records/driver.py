@@ -40,15 +40,107 @@ import logging as Logging
 import web
 
 from .functions import massage_search_results, thing_to_doc
-from .matchers import match_functions
+from .matchers import match_functions, get_authors_solr
 
 logger = Logging.getLogger("openlibrary.importapi")
+
+
 
 def search(params):
     params = params["doc"]
     matched_keys = run_matchers(params)
     filtered_keys = run_filter(matched_keys, params)
-    return massage_search_results(list(filtered_keys))
+    search_results = massage_search_results(list(filtered_keys), params)
+    print "Search results ", search_results
+    return search_results
+
+
+def compare_authors(thing_authors, input_authors):
+    """
+    The authors in the thing are of the form 
+    [
+      {'key' : '/authors/OL1A'},
+      {'key' : '/authors/OL2A'},
+      ...
+    ]
+
+    With the input, it's often of the form
+    [
+      {'name' : 'John Doe'},
+      {'name' : 'Jane Doe'},
+      ...
+    ]
+
+    
+    This function uses the author solr to try to translate the second
+    into keys and then uses that to compare the two lists.
+    
+    """
+    thing_keys = set([x['key'] for x in thing_authors])
+    input_keys = set()
+    asolr = get_authors_solr()
+    for author in input_authors:
+        q = {'name' : author['name']}
+        results = asolr.select(q)
+        key = "/authors/%s"%results.docs[0].key
+        input_keys.add(key)
+    return thing_keys == input_keys
+        
+             
+
+def compare(i1, i2):
+    """Compares `i1` to see if it matches `i2`
+    according to the rules in run_filter
+
+    `i1` is originally the `thing` and `i2` the search parameters.
+    """
+
+    if i1 == i2: # Trivially the same
+        return True
+
+    if isinstance(i1, list) and isinstance(i2, list):
+        # i2 should be a subset of i1.  Can't use plain old set
+        # operations since we have to match recursively using
+        # compare
+        for i in i2:
+            matched = False
+            for j in i1:
+                if compare(i, j):
+                    matched = True
+                    break
+            if not matched: # A match couldn't be found for atleast one element
+                logger.debug("Couldn't match %s in %s", i, i1)
+                return False
+        return True
+
+    if isinstance(i1, dict) and isinstance(i2, dict):
+        # Every key in i2 should either be in i1 and matching
+        #    OR
+        # In case of the 'title' and 'authors', if it's there in
+        # the search params, it *should* match.
+        for k in i2:
+            if k == "authors":
+                # Special case 'author'. Return False if not present
+                # in thing or if not matching.
+                if k not in i1 or not compare_authors(i1[k], i2[k]):
+                    return False
+            elif k == "title":
+                # Special case title. Return False if not present in
+                # thing or if not matching.
+                # TODO: Might have to compare here for normalised title
+                if k not in i1 or not compare(i1[k].lower(), i2[k].lower()):
+                    return False
+            elif k in i1:
+                # Recursively match for other keys
+                if compare(i1[k], i2[k]):
+                    pass
+                else:
+                    return False
+            else:
+                return False
+        return True
+
+    return False
 
 
 def run_matchers(params):
@@ -80,54 +172,6 @@ def run_filter(matched_keys, params):
      publishers and such ('Dover publishers' and 'Dover' are
      equivalent).
     """
-
-    def compare(i1, i2):
-        """Compares `i1` to see if it matches `i2`
-        according to the rules stated above.
-        
-        `i1` is originally the `thing` and `i2` the search parameters.
-        """
-        if i1 == i2: # Trivially the same
-            return True
-
-        if isinstance(i1, list) and isinstance(i2, list):
-            # i2 should be a subset of i1.  Can't use plain old set
-            # operations since we have to match recursively using
-            # compare
-            for i in i2:
-                matched = False
-                for j in i1:
-                    if compare(i, j):
-                        matched = True
-                        break
-                if not matched: # A match couldn't be found for atleast one element
-                    logger.debug("Couldn't match %s in %s", i, i1)
-                    return False
-            return True
-
-        if isinstance(i1, dict) and isinstance(i2, dict):
-            # Every key in i2 should either be in i1 and matching
-            #    OR
-            # In case of the 'title' and 'authors', if it's there in
-            # the search params, it *should* match.
-            for k in i2:
-                if k == "title" or k == "authors":
-                    # Special case title and authors. Return False if not present in thing
-                    # TODO: Convert author names to keys.
-                    if k not in i1 or not compare(i1[k], i2[k]):
-                        return False
-                elif k in i1:
-                    # Recursively match for other keys
-                    if compare(i1[k], i2[k]):
-                        pass
-                    else:
-                        return False
-                else:
-                    return False
-            return True
-
-        return False
-
     docs = (thing_to_doc(web.ctx.site.get(x)) for x in matched_keys)
 
     return itertools.imap(lambda x: web.ctx.site.get(x['key']), 
