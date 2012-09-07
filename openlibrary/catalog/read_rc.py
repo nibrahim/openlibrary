@@ -9,7 +9,7 @@ import os.path
 # secret_key = ''
  
 def read_rc():
-    rc_file = os.path.expanduser('~/.olrc')
+    rc_file = os.path.expanduser('/home/noufal/projects/openlibrary/olrc')
     if not os.path.exists(rc_file):
         return {}
     f = open(rc_file)

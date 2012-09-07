@@ -11,11 +11,11 @@ from pprint import pprint
 import MySQLdb
 import re, urllib2, httplib, json, codecs, socket, sys
 
-ol = OpenLibrary('http://openlibrary.org/')
+ol = OpenLibrary('http://0.0.0.0:8080/')
 
 rc = read_rc()
 
-base_url = 'http://openlibrary.org'
+base_url = 'http://0.0.0.0:8080'
 
 ia_db_host = 'dbmeta.us.archive.org'
 ia_db_user = 'archive'

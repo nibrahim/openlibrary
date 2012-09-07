@@ -22,7 +22,7 @@ marc_index.printing = False
 db_amazon = web.database(dbn='postgres', db='amazon')
 db_amazon.printing = False
 
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 ol.login('ImportBot', rc['ImportBot']) 
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)

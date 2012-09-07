@@ -104,10 +104,10 @@ class index:
                 total_load += load_count
                 total_t += q['t1']
             page += '<td><a href="http://archive.org/details/%s">%s</a></td>' % (k.rstrip('2'), k)
-#            page += '<td><a href="http://openlibrary.org/show-marc/%s">current record</a></td>' % q['cur']
+#            page += '<td><a href="http://0.0.0.0:8080/show-marc/%s">current record</a></td>' % q['cur']
 #            if 'last_key' in q and q['last_key']:
 #                last_key = q['last_key']
-#                page += '<td><a href="http://openlibrary.org%s">%s</a></td>' % (last_key, last_key[3:])
+#                page += '<td><a href="http://0.0.0.0:8080%s">%s</a></td>' % (last_key, last_key[3:])
 #            else:
 #                page += '<td>No key</td>'
             if k in done:

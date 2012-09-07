@@ -8,7 +8,7 @@ from openlibrary.catalog.merge.merge_index import add_to_indexes
 
 import psycopg2
 from openlibrary.catalog.read_rc import read_rc
-conn = psycopg2.connect(database='marc_index', host='ol-db')
+conn = psycopg2.connect(database='marc_index')
 cur = conn.cursor()
 
 pool_url = 'http://0.0.0.0:9020/'

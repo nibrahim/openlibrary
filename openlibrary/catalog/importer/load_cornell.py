@@ -17,7 +17,7 @@ sys.path.append('/home/edward/src/olapi')
 from olapi import OpenLibrary, unmarshal
 
 rc = read_rc()
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 ol.login('ImportBot', rc['ImportBot']) 
 
 db_amazon = web.database(dbn='postgres', db='amazon')

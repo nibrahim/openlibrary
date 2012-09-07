@@ -6,11 +6,13 @@ from pprint import pprint
 from openlibrary.catalog.read_rc import read_rc
 from openlibrary.api import OpenLibrary
 
+
 rc = read_rc()
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080/")
+
 ol.login('ImportBot', rc['ImportBot']) 
 
-password = open(os.path.expanduser('~/.openlibrary_db_password')).read()
+password = open(os.path.expanduser('/home/noufal/projects/openlibrary/openlibrary_db_password')).read()
 if password.endswith('\n'):
     password = password[:-1]
 db_error = web.database(dbn='postgres', db='ol_errors', host='localhost', user='openlibrary', pw=password)

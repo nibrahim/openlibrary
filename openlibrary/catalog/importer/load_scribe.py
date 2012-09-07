@@ -34,11 +34,11 @@ args = parser.parse_args()
 
 config_file = args.config
 config.load(config_file)
-import_bot_password = config.runtime_config['load_scribe']['import_bot_password']
+import_bot_password = "abcd" #config.runtime_config['load_scribe']['import_bot_password']
 # '/1/var/log/openlibrary/load_scribe'
-load_scribe_log = config.runtime_config['load_scribe']['log']
+load_scribe_log = "/tmp/foo.log" # config.runtime_config['load_scribe']['log']
 
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 ol.login('ImportBot', import_bot_password)
 
 password = Popen(["/opt/.petabox/dbserver"], stdout=PIPE).communicate()[0]
@@ -296,10 +296,14 @@ def bad_marc_alert(bad_marc):
         '%s\n\n') % (ia, ia, `data`) for ia, data in bad_marc)
     error_mail(msg_from, msg_to, subject, msg)
 
-if __name__ == '__main__':
-    fh_log = open(load_scribe_log, 'a')
 
-    open(config.runtime_config['state_dir'] + '/load_scribe.pid', 'w').write(os.getpid())
+
+def main():
+    fh_log = open(load_scribe_log, 'a')
+    import os
+    pid = os.getpid()
+    open(config.runtime_config['state_dir'] + '/load_scribe.pid', 'w').write(str(pid))
+    state_file = "/tmp/foo"
     start = open(state_file).readline()[:-1]
     bad_marc_last_sent = time()
     bad_marc = []
@@ -512,3 +516,6 @@ if __name__ == '__main__':
         if mins < 30:
             print 'waiting'
             sleep(60 * 30 - secs)
+
+if __name__ == '__main__':
+    main()

@@ -9,7 +9,7 @@ from openlibrary.api import OpenLibrary, unmarshal, marshal
 from pprint import pprint
 
 rc = read_rc()
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 ol.login('ImportBot', rc['ImportBot']) 
 
 re_meta_mrc = re.compile('^([^/]*)_meta.mrc:0:\d+$')
@@ -24,7 +24,7 @@ def fix_toc(e):
         return
     print e['key']
     pprint(toc)
-    # http://openlibrary.org/books/OL789133M - /type/toc_item missing from table_of_contents
+    # http://0.0.0.0:8080/books/OL789133M - /type/toc_item missing from table_of_contents
     if isinstance(toc[0], dict) and ('pagenum' in toc[0] or toc[0]['type'] == '/type/toc_item'):
         return
     return [{'title': unicode(i), 'type': '/type/toc_item'} for i in toc if i != u'']
@@ -37,7 +37,7 @@ def has_dot(s):
 def undelete_author(a):
     key = a['key']
     assert a['type'] == '/type/delete'
-    url = 'http://openlibrary.org' + key + '.json?v=' + str(a['revision'] - 1)
+    url = 'http://0.0.0.0:8080' + key + '.json?v=' + str(a['revision'] - 1)
     prev = unmarshal(json.load(urlopen(url)))
     assert prev['type'] == '/type/author'
     ol.save(key, prev, 'undelete author')

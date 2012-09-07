@@ -27,7 +27,7 @@ marc_index.printing = True
 db_amazon = web.database(dbn='postgres', db='amazon')
 db_amazon.printing = False
 
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 ol.login('ImportBot', rc['ImportBot']) 
 
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
@@ -135,7 +135,7 @@ def author_from_data(loc, data):
 def undelete_author(a):
     key = a['key']
     assert a['type'] == '/type/delete'
-    url = 'http://openlibrary.org' + key + '.json?v=' + str(a['revision'] - 1)
+    url = 'http://0.0.0.0:8080' + key + '.json?v=' + str(a['revision'] - 1)
     prev = unmarshal(json.load(urllib2.urlopen(url)))
     assert prev['type'] == '/type/author'
     save_with_retry(key, prev, 'undelete author')
