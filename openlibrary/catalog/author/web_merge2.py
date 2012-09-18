@@ -46,7 +46,7 @@ def result_table(data, birth, death, order):
     if order:
         data = sorted(data, key=lambda i:i[order])
     for i in data:
-        html += '<tr><td><a href="http://openlibrary.org%s">%s</td><td>%s</td><td>%s</td><tr>' % (i['key'], web.htmlquote(i['name']), i['birth'], i['death'])
+        html += '<tr><td><a href="http://0.0.0.0:8080%s">%s</td><td>%s</td><td>%s</td><tr>' % (i['key'], web.htmlquote(i['name']), i['birth'], i['death'])
     return '<table>' + html + '</table>'
 
 def get_all(url):
@@ -88,7 +88,7 @@ th { text-align: left; }
         html += '<input type="submit" value="Search">\n</form>'
 
         if birth or death:
-            url = 'http://openlibrary.org/query.json?type=/type/author&birth_date=%s&death_date=%s&name=' % (web.urlquote(birth), web.urlquote(death))
+            url = 'http://0.0.0.0:8080/query.json?type=/type/author&birth_date=%s&death_date=%s&name=' % (web.urlquote(birth), web.urlquote(death))
             data = get_all(url)
             html += result_table(data, birth, death, order)
         return html + '</body>\n</html>'

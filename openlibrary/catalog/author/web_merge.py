@@ -6,7 +6,7 @@ urls = (
     '/', 'index'
 )
 
-base = 'http://openlibrary.org'
+base = 'http://0.0.0.0:8080'
 
 class index:
     def GET(self):

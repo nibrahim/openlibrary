@@ -9,7 +9,7 @@ conn = MySQLdb.connect(db='merge_editions')
 cur = conn.cursor()
 cur2 = conn.cursor()
 
-ol = OpenLibrary('http://openlibrary.org/')
+ol = OpenLibrary('http://0.0.0.0:8080/')
 ol.login('EdwardBot', 'As1Wae9b')
 
 cur.execute('select ia, editions, done from merge where done is null and unmerge_count=0')

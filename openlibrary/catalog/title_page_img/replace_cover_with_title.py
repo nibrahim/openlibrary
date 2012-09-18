@@ -119,7 +119,7 @@ def post(ol, ia, ia_host, ia_path, cover, title):
         use_cover = True
 #    http://covers.openlibrary.org/b/query?olid=OL7232120M
     if False and not use_cover:
-        data = urlread('http://openlibrary.org/query.json?key=/b/OL7232119M&publish_date=')
+        data = urlread('http://0.0.0.0:8080/query.json?key=/b/OL7232119M&publish_date=')
         try:
             ret = eval(data)
         except:
@@ -133,7 +133,7 @@ def post(ol, ia, ia_host, ia_path, cover, title):
     #print query
     if use_cover:
         print 'use_cover',
-    print 'http://openlibrary.org' + ol
+    print 'http://0.0.0.0:8080' + ol
     for attempt in range(5):
         if attempt > 0:
             print 'trying again (%d)' % attempt

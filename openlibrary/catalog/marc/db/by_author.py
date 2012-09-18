@@ -98,8 +98,8 @@ def search(author, name):
     author_map = {}
 
     for key, title, a, locs in books:
-        t += '<tr><td><a href="http://openlibrary.org' + key + '">' + web.htmlquote(title) + '</a>'
-        t += '<br>' + ', '.join('<a href="http://openlibrary.org/show-marc/%s">%s</a>' % (i, i) for i in locs) + '</td>'
+        t += '<tr><td><a href="http://0.0.0.0:8080' + key + '">' + web.htmlquote(title) + '</a>'
+        t += '<br>' + ', '.join('<a href="http://0.0.0.0:8080/show-marc/%s">%s</a>' % (i, i) for i in locs) + '</td>'
 #        t += '<td>' + web.htmlquote(`a[2]`) + '</td>'
         if a:
             if a[2] not in author_map:
@@ -109,7 +109,7 @@ def search(author, name):
 
             match = author_map[a[2]]
             if match:
-                t += '<td><a href="http://openlibrary.org%s">%s-%s</a></td>' % (match['key'], match['birth_date'] or '', match['death_date'] or '')
+                t += '<td><a href="http://0.0.0.0:8080%s">%s-%s</a></td>' % (match['key'], match['birth_date'] or '', match['death_date'] or '')
             else:
                 t += '<td>%s-%s (no match)</td>' % (dates['birth_date'] or '', dates['death_date'] or '')
         t += '</tr>\n'
@@ -118,7 +118,7 @@ def search(author, name):
     if authors:
         ret += '<ul>'
         for a in authors:
-            ret += '<li><a href="http://openlibrary.org%s">%s</a> (%s-%s) %d editions' % (a['key'], web.htmlquote(name), a['birth_date'] or '', a['death_date'] or '', len(a['editions']))
+            ret += '<li><a href="http://0.0.0.0:8080%s">%s</a> (%s-%s) %d editions' % (a['key'], web.htmlquote(name), a['birth_date'] or '', a['death_date'] or '', len(a['editions']))
         ret += '</ul>'
 
     return ret + '<table>' + t + '</table>'
@@ -154,7 +154,7 @@ td { padding: 5px; background: #eee }
         ret += '</table>'
         ret += '</form>'
         if author: 
-            ret += 'Author: <a href="http://openlibrary.org%s">%s</a><br>' % (author, name)
+            ret += 'Author: <a href="http://0.0.0.0:8080%s">%s</a><br>' % (author, name)
             ret += search(author, name)
         ret += "</body></html>"
         return ret

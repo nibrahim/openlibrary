@@ -73,7 +73,7 @@ td { padding: 5px; background: #eee; vertical-align: top }
         print thing.name, '<p>'
         for k in site.things({'type': '/type/edition', 'authors': key}):
             t = site.get(k)
-            print '<a href="http://openlibrary.org%s">%s</a></td>' % (k, t.title)
+            print '<a href="http://0.0.0.0:8080%s">%s</a></td>' % (k, t.title)
             if t.isbn_10:
                 isbn = str(t.isbn_10[0])
                 locs = db_isbn[isbn].split(' ') if isbn in db_isbn else []

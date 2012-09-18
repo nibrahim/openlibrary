@@ -20,7 +20,7 @@ from time import sleep, time, strftime
 from openlibrary.catalog.marc.marc_subject import get_work_subjects, four_types
 import simplejson as json
 
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 
 re_skip = re.compile(r'\b([A-Z]|Co|Dr|Jr|Capt|Mr|Mrs|Ms|Prof|Rev|Revd|Hon|etc)\.$')
 re_work_key = re.compile('^/works/OL(\d+)W$')
@@ -128,7 +128,7 @@ def get_work_title(e, mc):
             data = get_data(src)
         except ValueError:
             print 'bad record source:', src
-            print 'http://openlibrary.org' + e['key']
+            print 'http://0.0.0.0:8080' + e['key']
             continue
         except urllib2.HTTPError, error:
             print 'HTTP error:', error.code, error.msg
@@ -140,7 +140,7 @@ def get_work_title(e, mc):
             line = get_first_tag(data, set(['240']))
         except BadDictionary:
             print 'bad dictionary:', src
-            print 'http://openlibrary.org' + e['key']
+            print 'http://0.0.0.0:8080' + e['key']
             continue
         if line:
             wt = ' '.join(get_subfield_values(line, ['a'], is_marc8)).strip('. ')
@@ -245,7 +245,7 @@ def build_work_title_map(equiv, norm_titles):
     return title_map
 
 def get_first_version(key):
-    url = 'http://openlibrary.org' + key + '.json?v=1'
+    url = 'http://0.0.0.0:8080' + key + '.json?v=1'
     try:
         return json.load(urlopen(url))
     except:
@@ -293,7 +293,7 @@ def find_title_redirects(akey):
             print q
             raise
         for r in map(get_first_version, query_iter):
-            redirect_history = json.load(urlopen('http://openlibrary.org%s.json?m=history' % r['key']))
+            redirect_history = json.load(urlopen('http://0.0.0.0:8080%s.json?m=history' % r['key']))
             if any(v['author'].endswith('/WorkBot') and v['comment'] == "merge works" for v in redirect_history):
                 continue
             #print 'redirect:', r

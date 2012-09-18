@@ -2,7 +2,7 @@ import urllib, web
 import simplejson as json
 from time import sleep
 
-query_host = 'openlibrary.org'
+query_host = '0.0.0.0:8080'
 
 def jsonload(url):
     return json.load(urllib.urlopen(url))

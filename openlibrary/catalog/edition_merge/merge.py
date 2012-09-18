@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 re_edition_key = re.compile('^/books/OL(\d+)M$')
 
-ol = OpenLibrary('http://openlibrary.org/')
+ol = OpenLibrary('http://0.0.0.0:8080/')
 ol.login('EdwardBot', 'As1Wae9b')
 
 @app.before_request

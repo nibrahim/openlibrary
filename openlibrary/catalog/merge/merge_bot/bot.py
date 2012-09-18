@@ -129,7 +129,7 @@ td { background: #eee; }
         yield '<table>'
         yield '<tr><th>Key</th><th>OCLC</th><th>ISBN</th><th>title</th><th>subtitle</th></tr>'
         for e in editions:
-            url = 'http://openlibrary.org' + e['key']
+            url = 'http://0.0.0.0:8080' + e['key']
             title = web.htmlquote(e['title']) if e['title'] else 'no title'
             yield '<tr><td><a href="%s">%s</a></td>' % (url, e['key'])
             yield '<td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (e['oclc_numbers'], e['isbn_10'], title, (web.htmlquote(e['subtitle']) if e.get('subtitle', None) else '<i>no subtitle</i>'))

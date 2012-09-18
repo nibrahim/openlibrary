@@ -8,7 +8,7 @@ cur = conn.cursor()
 
 re_edition_key = re.compile('^/books/OL(\d+)M$')
 re_work_key = re.compile('^/works/OL(\d+)W$')
-ol = OpenLibrary('http://openlibrary.org/')
+ol = OpenLibrary('http://0.0.0.0:8080/')
 ol.login('EdwardBot', 'As1Wae9b')
 
 re_iso_date = re.compile('^(\d{4})-\d\d-\d\d$')

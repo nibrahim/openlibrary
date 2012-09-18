@@ -140,7 +140,7 @@ def read_edition(f):
     ]
 
     for tag, line in fields:
-        # http://openlibrary.org/b/OL7074573M
+        # http://0.0.0.0:8080/b/OL7074573M
         # if tag == '006':
         #    if line[0] == 'm':
         #        return None

@@ -19,7 +19,7 @@ from time import sleep, time
 
 rc = read_rc()
 
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 ol.login('WorkBot', rc['WorkBot'])
 
 def write_log(cat, key, title):
@@ -146,7 +146,7 @@ def get_work_title(e):
             data = get_data(src)
         except ValueError:
             print 'bad record source:', src
-            print 'http://openlibrary.org' + e['key']
+            print 'http://0.0.0.0:8080' + e['key']
             continue
         except urllib2.HTTPError, error:
             print 'HTTP error:', error.code, error.msg
@@ -157,7 +157,7 @@ def get_work_title(e):
             line = get_first_tag(data, set(['240']))
         except BadDictionary:
             print 'bad dictionary:', src
-            print 'http://openlibrary.org' + e['key']
+            print 'http://0.0.0.0:8080' + e['key']
             continue
         if line:
             wt = ' '.join(get_subfield_values(line, ['a'])).strip('. ')
@@ -167,7 +167,7 @@ def get_work_title(e):
     if not e.get('work_titles', []):
         return
     print 'work title in MARC, but not in OL'
-    print 'http://openlibrary.org' + e['key']
+    print 'http://0.0.0.0:8080' + e['key']
     return e['work_titles'][0]
 
 def get_books(akey, query):
@@ -407,7 +407,7 @@ def get_work_key(title, akey):
     if len(matches) != 1:
         print 'time to fix duplicate works'
         print `title`
-        print 'http://openlibrary.org' + akey
+        print 'http://0.0.0.0:8080' + akey
         print matches
     assert len(matches) == 1
     return matches[0]['key']

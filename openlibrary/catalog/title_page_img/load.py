@@ -7,7 +7,7 @@ def add_cover_image(ekey, ia):
     h1 = httplib.HTTPConnection('openlibrary.org')
     body = json.dumps(dict(username='ImportBot', password=rc['ImportBot']))
     headers = {'Content-Type': 'application/json'}  
-    h1.request('POST', 'http://openlibrary.org/account/login', body, headers)
+    h1.request('POST', 'http://0.0.0.0:8080/account/login', body, headers)
 
     res = h1.getresponse()
 
@@ -19,7 +19,7 @@ def add_cover_image(ekey, ia):
     cover_url = 'http://www.archive.org/download/' + ia + '/page/' + ia + '_preview.jpg'
     body = urllib.urlencode({"url": cover_url})
     assert ekey.startswith('/books/')
-    add_cover_url = 'http://openlibrary.org' + ekey + '/add-cover.json'
+    add_cover_url = 'http://0.0.0.0:8080' + ekey + '/add-cover.json'
     headers = {'Content-type': 'application/x-www-form-urlencoded', 'Cookie': cookie}
     h1.request('POST', add_cover_url, body, headers)
     res = h1.getresponse()

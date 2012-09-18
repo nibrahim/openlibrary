@@ -15,7 +15,7 @@ def isbn_link(i):
     return '<a href="http://wiki-beta.us.archive.org:8081/?isbn=%s">%s</a> (<a href="http://amazon.com/dp/%s">Amazon.com</a>)' % (i, i, i)
 
 def ol_link(key):
-    return '<a href="http://openlibrary.org%s">%s</a></td>' % (key, key)
+    return '<a href="http://0.0.0.0:8080%s">%s</a></td>' % (key, key)
 
 def search(title, author):
     q = { 'type': '/type/author', 'name': author }

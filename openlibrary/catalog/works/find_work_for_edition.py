@@ -5,7 +5,7 @@ from openlibrary.catalog.utils import mk_norm
 import sys
 from time import time
 
-ol = OpenLibrary("http://openlibrary.org")
+ol = OpenLibrary("http://0.0.0.0:8080")
 
 def find_matching_work(e):
     norm_title = mk_norm(e['title'])

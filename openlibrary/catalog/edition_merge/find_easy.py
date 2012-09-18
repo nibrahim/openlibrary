@@ -8,7 +8,7 @@ re_edition_key = re.compile('^/books/OL(\d+)M$')
 re_nonword = re.compile(r'\W', re.U)
 re_edition = re.compile(' ed edition$')
 
-ol = OpenLibrary('http://openlibrary.org/')
+ol = OpenLibrary('http://0.0.0.0:8080/')
 
 conn = MySQLdb.connect(db='merge_editions')
 cur = conn.cursor()

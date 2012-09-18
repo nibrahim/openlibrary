@@ -32,7 +32,7 @@ class index:
                 loc = dbm[input.oclc]
                 print '<ul>'
                 for l in loc.split(' '):
-                    print '<li><a href="http://openlibrary.org/show-marc/%s">%s</a>' % (l, l)
+                    print '<li><a href="http://0.0.0.0:8080/show-marc/%s">%s</a>' % (l, l)
                 print '</ul>'
             else:
                 print html_oclc, 'not found'

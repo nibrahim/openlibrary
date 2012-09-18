@@ -34,8 +34,8 @@ for key in site.things({'type': '/type/scan_record'}):
         data = get_data(loc)
         if not data or data.find('icrof') == -1:
             continue
-        print "http://openlibrary.org" + edition_key
-        print "http://openlibrary.org/show-marc/" + loc
+        print "http://0.0.0.0:8080" + edition_key
+        print "http://0.0.0.0:8080/show-marc/" + loc
         for tag, tag_line in get_all_tag_lines(data):
             if tag_line.find('icrof') == -1:
                 continue

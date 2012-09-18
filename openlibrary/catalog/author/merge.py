@@ -206,7 +206,7 @@ if __name__ == '__main__':
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
     rc = read_rc()
-    ol = OpenLibrary("http://openlibrary.org")
+    ol = OpenLibrary("http://0.0.0.0:8080")
     ol.login('EdwardBot', rc['EdwardBot']) 
     assert len(sys.argv) > 2
     merge_authors(ol, sys.argv[1:])

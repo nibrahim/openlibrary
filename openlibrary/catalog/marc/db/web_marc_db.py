@@ -98,7 +98,7 @@ def show_locs(locs, isbn):
     ret += '<ul>'
     for loc, rec in recs:
         s = loc[:loc.find('/')]
-        ret += '<li><a href="http://openlibrary.org/show-marc/%s">%s</a>' % (loc, s)
+        ret += '<li><a href="http://0.0.0.0:8080/show-marc/%s">%s</a>' % (loc, s)
         keys.update([k for k in rec.keys()])
         for f in 'uri':
             if f in rec:

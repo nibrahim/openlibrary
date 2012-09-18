@@ -118,7 +118,7 @@ def read_lc_classification(rec):
                 found += [' '.join([a, b]) for a in contents['a']]
             else:
                 found += [b]
-        # http://openlibrary.org/show-marc/marc_university_of_toronto/uoft.marc:671135731:596
+        # http://0.0.0.0:8080/show-marc/marc_university_of_toronto/uoft.marc:671135731:596
         elif 'a' in contents:
             found += contents['a']
     return found
@@ -179,7 +179,7 @@ def read_title(rec):
         raise NoTitle
 
 #   example MARC record with multiple titles:
-#   http://openlibrary.org/show-marc/marc_western_washington_univ/wwu_bibs.mrc_revrev.mrc:299505697:862
+#   http://0.0.0.0:8080/show-marc/marc_western_washington_univ/wwu_bibs.mrc_revrev.mrc:299505697:862
     contents = fields[0].get_contents(['a', 'b', 'c', 'h', 'p'])
 
     b_and_p = [i for i in fields[0].get_subfield_values(['b', 'p']) if i]
@@ -188,7 +188,7 @@ def read_title(rec):
     title = None
 
 #   MARC record with 245a missing:
-#   http://openlibrary.org/show-marc/marc_western_washington_univ/wwu_bibs.mrc_revrev.mrc:516779055:1304
+#   http://0.0.0.0:8080/show-marc/marc_western_washington_univ/wwu_bibs.mrc_revrev.mrc:516779055:1304
     if 'a' in contents:
         title = ' '.join(x.strip(' /,;:') for x in contents['a'])
     elif b_and_p:
@@ -366,7 +366,7 @@ def read_pagination(rec):
         pagination += f.get_subfield_values(['a'])
     if pagination:
         edition["pagination"] = ' '.join(pagination)
-        num = [] # http://openlibrary.org/show-marc/marc_university_of_toronto/uoft.marc:2617696:825
+        num = [] # http://0.0.0.0:8080/show-marc/marc_university_of_toronto/uoft.marc:2617696:825
         for x in pagination:
             num += [ int(i) for i in re_int.findall(x.replace(',',''))]
             num += [ int(i) for i in re_int.findall(x) ]
@@ -512,11 +512,11 @@ def read_toc(rec):
                 toc_split = [i.strip() for i in v.split('--')]
                 if any(len(i) > 2048 for i in toc_split):
                     toc_split = [i.strip() for i in v.split(' - ')]
-                # http://openlibrary.org/show-marc/marc_miami_univ_ohio/allbibs0036.out:3918815:7321
+                # http://0.0.0.0:8080/show-marc/marc_miami_univ_ohio/allbibs0036.out:3918815:7321
                 if any(len(i) > 2048 for i in toc_split):
                     toc_split = [i.strip() for i in v.split('; ')]
                 # FIXME:
-                # http://openlibrary.org/show-marc/marc_western_washington_univ/wwu_bibs.mrc_revrev.mrc:938969487:3862
+                # http://0.0.0.0:8080/show-marc/marc_western_washington_univ/wwu_bibs.mrc_revrev.mrc:938969487:3862
                 if any(len(i) > 2048 for i in toc_split):
                     toc_split = [i.strip() for i in v.split(' / ')]
                 assert isinstance(toc_split, list)

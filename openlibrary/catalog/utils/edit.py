@@ -51,7 +51,7 @@ def fix_subject(e):
 def undelete_author(a, ol):
     key = a['key']
     assert a['type'] == '/type/delete'
-    url = 'http://openlibrary.org' + key + '.json?v=' + str(a['revision'] - 1)
+    url = 'http://0.0.0.0:8080' + key + '.json?v=' + str(a['revision'] - 1)
     prev = unmarshal(json.load(urllib2.urlopen(url)))
     assert prev['type'] == '/type/author'
     ol.save(key, prev, 'undelete author')

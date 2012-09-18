@@ -8,7 +8,7 @@ ia_db_host = 'dbmeta.us.archive.org'
 ia_db_user = 'archive'
 ia_db_pass = Popen(["/opt/.petabox/dbserver"], stdout=PIPE).communicate()[0]
 
-ol = OpenLibrary('http://openlibrary.org/')
+ol = OpenLibrary('http://0.0.0.0:8080/')
 
 local_db = MySQLdb.connect(db='merge_editions')
 local_cur = conn.cursor()

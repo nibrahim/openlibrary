@@ -211,7 +211,7 @@ def get_contents(line, want):
 
 def get_lower_subfields(line, is_marc8):
     if len(line) < 4: 
-        return [] # http://openlibrary.org/show-marc/marc_university_of_toronto/uoft.marc:2479215:693
+        return [] # http://0.0.0.0:8080/show-marc/marc_university_of_toronto/uoft.marc:2479215:693
     return [translate(i[1:], is_marc8) for i in line[3:-1].split('\x1f') if i and i[0].islower()]
 
 def get_subfield_values(line, want, is_marc8):
