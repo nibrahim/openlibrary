@@ -300,6 +300,8 @@ def bad_marc_alert(bad_marc):
 
 
 def main():
+    global fh_log
+    global host
     fh_log = open(load_scribe_log, 'a')
     import os
     pid = os.getpid()
