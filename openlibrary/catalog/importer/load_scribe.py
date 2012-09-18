@@ -34,9 +34,10 @@ args = parser.parse_args()
 
 config_file = args.config
 config.load(config_file)
+config.runtime_config['state_dir'] = "/home/noufal/scribe-state"
 import_bot_password = "abcd" #config.runtime_config['load_scribe']['import_bot_password']
 # '/1/var/log/openlibrary/load_scribe'
-load_scribe_log = "/tmp/foo.log" # config.runtime_config['load_scribe']['log']
+load_scribe_log = config.runtime_config['state_dir'] + "/scribe.log" # config.runtime_config['load_scribe']['log']
 
 ol = OpenLibrary("http://0.0.0.0:8080")
 ol.login('ImportBot', import_bot_password)
@@ -303,7 +304,7 @@ def main():
     import os
     pid = os.getpid()
     open(config.runtime_config['state_dir'] + '/load_scribe.pid', 'w').write(str(pid))
-    state_file = "/tmp/foo"
+    state_file = config.runtime_config['state_dir']+"/state"
     start = open(state_file).readline()[:-1]
     bad_marc_last_sent = time()
     bad_marc = []
