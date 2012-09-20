@@ -17,6 +17,7 @@ def read_from_url(url):
     data = None
     for i in range(20):
         try:
+            print url
             data = urlopen(url).read()
             if data:
                 break
@@ -40,7 +41,7 @@ def set_staging(v):
     staging = v
 
 def api_url():
-    return "http://0.0.0.0:%s/api/" % (':8080' if staging else '')
+    return "http://0.0.0.0:8080%s/api/" % (':8080' if staging else '')
     
 def api_versions(): return api_url() + "versions?"
 def api_things(): return api_url() + "things?"
