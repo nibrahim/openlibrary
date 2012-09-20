@@ -178,6 +178,7 @@ def check_if_loaded(loc): # unused
 # {'publishers': [u'D. Obradovi'], 'pagination': u'204p.', 'source_records': [u'ia:zadovoljstvauivo00lubb'], 'title': u'Zadovoljstva u ivotu', 'series': [u'Srpska knjiecna zadruga.  [Izdanja] 133'], 'number_of_pages': {'type': '/type/int', 'value': 204}, 'languages': [{'key': '/languages/ser'}], 'lc_classifications': [u'BJ1571 A819 1910'], 'publish_date': '1910', 'authors': [{'key': '/authors/OL162549A'}], 'ocaid': u'zadovoljstvauivo00lubb', 'publish_places': [u'Beograd'], 'type': {'key': '/type/edition'}}
 
 def build_query(loc, rec):
+    import pdb; pdb.set_trace()
     if 'table_of_contents' in rec:
         assert not isinstance(rec['table_of_contents'][0], list)
     book = {
@@ -192,14 +193,14 @@ def build_query(loc, rec):
     if east:
         print rec
 
-    langs = rec.get('languages', [])
+    langs = [{'key': "/languages/%s"%x} for x in rec.get('languages', [])]
     print langs
     if any(l['key'] == '/languages/zxx' for l in langs):
         print 'zxx found in langs'
         rec['languages'] = [l for l in langs if l['key'] != '/languages/zxx']
         print 'fixed:', langs
 
-    for l in rec.get('languages', []):
+    for l in [{'key': "/languages/%s"%x} for x in rec.get('languages', [])]:
         print l
         if l['key'] == '/languages/ser':
             l['key'] = '/languages/srp'
@@ -228,6 +229,9 @@ def build_query(loc, rec):
     for k, v in rec.iteritems():
         if k == 'authors':
             book[k] = [import_author(v[0], eastern=east)]
+            continue
+        if k == "languages":
+            book[k] = [{'key':'/languages/%s'%x} for x in v if not x.startswith("/languages")]
             continue
         if k in type_map:
             t = '/type/' + type_map[k]
