@@ -87,7 +87,7 @@ def load_xml(ia, host, path):
     assert 'title' in edition
     return edition
 
-def load(ia, use_binary=False):
+def load(ia, path, use_binary=False):
     print "load", ia
     if not use_binary:
         try:
@@ -107,6 +107,7 @@ def load(ia, use_binary=False):
     write_edition(ia, edition, rec)
 
 def write_edition(ia, edition, rec):
+    global collections
     loc = 'ia:' + ia
     if ia == 'munkai00apor':
         edition['languages'] = [
@@ -302,6 +303,7 @@ def bad_marc_alert(bad_marc):
 def main():
     global fh_log
     global host
+    global collections
     fh_log = open(load_scribe_log, 'a')
     import os
     pid = os.getpid()
@@ -463,7 +465,7 @@ def main():
             edition_pool = pool.build(index_fields)
 
             if not edition_pool:
-                load(ia, use_binary=use_binary)
+                load(ia, path, use_binary=use_binary)
                 write_log(ia, when, "loaded")
                 continue
 
@@ -501,7 +503,7 @@ def main():
 
             if not match:
                 try:
-                    load(ia, use_binary=use_binary)
+                    load(ia, path, use_binary=use_binary)
                 except:
                     print 'bad item:', ia
                     raise
