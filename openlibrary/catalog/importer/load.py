@@ -178,7 +178,6 @@ def check_if_loaded(loc): # unused
 # {'publishers': [u'D. Obradovi'], 'pagination': u'204p.', 'source_records': [u'ia:zadovoljstvauivo00lubb'], 'title': u'Zadovoljstva u ivotu', 'series': [u'Srpska knjiecna zadruga.  [Izdanja] 133'], 'number_of_pages': {'type': '/type/int', 'value': 204}, 'languages': [{'key': '/languages/ser'}], 'lc_classifications': [u'BJ1571 A819 1910'], 'publish_date': '1910', 'authors': [{'key': '/authors/OL162549A'}], 'ocaid': u'zadovoljstvauivo00lubb', 'publish_places': [u'Beograd'], 'type': {'key': '/type/edition'}}
 
 def build_query(loc, rec):
-    import pdb; pdb.set_trace()
     if 'table_of_contents' in rec:
         assert not isinstance(rec['table_of_contents'][0], list)
     book = {
