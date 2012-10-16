@@ -192,14 +192,14 @@ def build_query(loc, rec):
     if east:
         print rec
 
-    langs = rec.get('languages', [])
+    langs = [{'key': "/languages/%s"%x} for x in rec.get('languages', [])]
     print langs
     if any(l == 'zxx' for l in langs):
         print 'zxx found in langs'
         rec['languages'] = [l for l in langs if l != 'zxx']
         print 'fixed:', langs
 
-    for l in rec.get('languages', []):
+    for l in [{'key': "/languages/%s"%x} for x in rec.get('languages', [])]:
         print l
         if l['key'] == '/languages/ser':
             l['key'] = '/languages/srp'
@@ -228,6 +228,9 @@ def build_query(loc, rec):
     for k, v in rec.iteritems():
         if k == 'authors':
             book[k] = [import_author(v[0], eastern=east)]
+            continue
+        if k == "languages":
+            book[k] = [{'key':'/languages/%s'%x} for x in v if not x.startswith("/languages")]
             continue
         if k in type_map:
             t = '/type/' + type_map[k]
