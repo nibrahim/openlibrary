@@ -194,9 +194,9 @@ def build_query(loc, rec):
 
     langs = rec.get('languages', [])
     print langs
-    if any(l['key'] == '/languages/zxx' for l in langs):
+    if any(l == 'zxx' for l in langs):
         print 'zxx found in langs'
-        rec['languages'] = [l for l in langs if l['key'] != '/languages/zxx']
+        rec['languages'] = [l for l in langs if l != 'zxx']
         print 'fixed:', langs
 
     for l in rec.get('languages', []):
