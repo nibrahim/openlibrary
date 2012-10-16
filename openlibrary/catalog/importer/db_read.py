@@ -4,7 +4,7 @@ from urllib import urlopen, urlencode
 from time import sleep
 from openlibrary.catalog.read_rc import read_rc
 
-staging = False
+staging = True
 
 db = web.database(dbn='postgres', db='marc_index', host='ol-db')
 db.printing = False
